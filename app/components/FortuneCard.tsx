@@ -31,14 +31,15 @@ export default function FortuneCard() {
           }`}
         >
           {/* Front */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 p-6 text-center shadow-xl [backface-visibility:hidden]">
-            <span className="text-6xl">🔮</span>
-            <p className="text-lg font-semibold text-white">오늘의 운세</p>
-            <p className="text-sm text-purple-100">카드를 눌러 확인하세요</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl bg-[linear-gradient(135deg,#E40303,#FF8C00,#FFED00,#008026,#004DFF,#750787)] p-6 text-center shadow-xl [backface-visibility:hidden]">
+            <span className="text-6xl drop-shadow">🏳️‍🌈</span>
+            <p className="text-lg font-semibold text-white drop-shadow">오늘의 운세</p>
+            <p className="text-sm text-white/90 drop-shadow">카드를 눌러 확인하세요</p>
           </div>
 
           {/* Back */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-gradient-to-br from-amber-400 to-pink-500 p-6 text-center shadow-xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
+          <div className="absolute inset-0 overflow-hidden rounded-2xl bg-[linear-gradient(315deg,#E40303,#FF8C00,#FFED00,#008026,#004DFF,#750787)] shadow-xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
+            <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-black/40 p-6 text-center">
             {fortune && (
               <>
                 <span className="text-4xl">✨</span>
@@ -52,6 +53,7 @@ export default function FortuneCard() {
                 </div>
               </>
             )}
+            </div>
           </div>
         </div>
       </div>
@@ -70,7 +72,7 @@ export default function FortuneCard() {
                 </div>
                 <div className="h-3 w-full overflow-hidden rounded-full bg-slate-700">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-amber-400 to-pink-500 transition-all duration-700"
+                    className="h-full rounded-full bg-[linear-gradient(90deg,#E40303,#FF8C00,#FFED00,#008026,#004DFF,#750787)] transition-all duration-700"
                     style={{ width: `${score.value}%` }}
                   />
                 </div>
@@ -88,7 +90,7 @@ export default function FortuneCard() {
 
       <button
         onClick={handleClick}
-        className="rounded-full bg-indigo-600 px-8 py-3 font-medium text-white shadow-md transition hover:bg-indigo-700 active:scale-95"
+        className="rounded-full bg-[linear-gradient(90deg,#E40303,#FF8C00,#FFED00,#008026,#004DFF,#750787)] px-8 py-3 font-semibold text-white shadow-md transition hover:brightness-110 active:scale-95"
       >
         {flipped ? "다시 뽑기" : "오늘의 운세 보기"}
       </button>
