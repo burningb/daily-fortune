@@ -12,10 +12,10 @@ export default function Home() {
 
       <header className="animate-rise text-center">
         <p className="font-serif mb-3 text-xs tracking-[0.5em] text-gold/80">
-          ☾ CELESTIAL FORTUNE ☽
+          ☾ KNOW THYSELF ☽
         </p>
         <h1 className="font-serif gold-shimmer text-4xl font-semibold tracking-wide sm:text-5xl">
-          오늘의 운세
+          오늘의 나에게
         </h1>
         <p className="font-gowun mx-auto mt-4 max-w-lg text-center text-sm leading-relaxed text-indigo-100/70">
           별이 내려앉은 자리에서,

@@ -24,8 +24,8 @@ const gowunBatang = Gowun_Batang({
 });
 
 export const metadata: Metadata = {
-  title: "오늘의 운세 · 별과 타로",
-  description: "이름과 생년월일·태어난 시간으로 보는 모던 점성술 운세",
+  title: "오늘의 나에게 · 별과 타로",
+  description: "별과 별자리를 통해 오늘의 나를 들여다보는 시간",
 };
 
 export default function RootLayout({

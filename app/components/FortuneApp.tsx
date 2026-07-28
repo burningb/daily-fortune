@@ -110,7 +110,7 @@ export default function FortuneApp() {
             나의 별을 알려주세요
           </h2>
           <p className="font-gowun mb-6 text-center text-xs text-indigo-100/50">
-            이름과 태어난 순간이 오늘의 카드를 부릅니다
+            이름과 태어난 순간이 오늘의 나를 비춥니다
           </p>
 
           <label className={labelClass}>이름</label>
@@ -184,7 +184,7 @@ export default function FortuneApp() {
             onClick={handleSubmit}
             className="font-serif group w-full rounded-md border border-gold/50 bg-gradient-to-b from-gold/20 to-gold/5 px-8 py-3 tracking-[0.15em] text-gold shadow-[0_0_20px_-6px_rgba(233,200,119,0.6)] transition hover:from-gold/30 hover:to-gold/10 hover:shadow-[0_0_28px_-4px_rgba(233,200,119,0.8)] active:scale-95"
           >
-            ✦ 오늘의 카드 뽑기 ✦
+            ✦ 오늘의 나 만나기 ✦
           </button>
         </div>
       </div>
@@ -318,8 +318,8 @@ export default function FortuneApp() {
             {reading.overallText}
           </p>
 
-          {/* 운세 지수 */}
-          <SectionTitle>오늘의 운세 지수</SectionTitle>
+          {/* 오늘의 나, 영역별 기운 */}
+          <SectionTitle>오늘의 나, 영역별 기운</SectionTitle>
           <div className="mb-7 flex flex-col gap-3.5">
             {reading.categories.map((c) => (
               <div key={c.label}>
