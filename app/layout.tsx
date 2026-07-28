@@ -1,20 +1,31 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cinzel, Nanum_Myeongjo, Gowun_Batang } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// 타로/천문 느낌의 클래식 세리프 (라틴 · 로마숫자 · 별자리명)
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// 한글 본문용 명조 — 명상적이고 고요한 분위기
+const nanumMyeongjo = Nanum_Myeongjo({
+  variable: "--font-myeongjo",
   subsets: ["latin"],
+  weight: ["400", "700", "800"],
+});
+
+// 한글 제목/강조용 부드러운 명조
+const gowunBatang = Gowun_Batang({
+  variable: "--font-gowun",
+  subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "오늘의 운세",
-  description: "카드를 눌러 오늘의 운세와 행운의 아이템을 확인해보세요",
+  title: "오늘의 운세 · 별과 타로",
+  description: "이름과 생년월일·태어난 시간으로 보는 모던 점성술 운세",
 };
 
 export default function RootLayout({
@@ -25,7 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${cinzel.variable} ${nanumMyeongjo.variable} ${gowunBatang.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

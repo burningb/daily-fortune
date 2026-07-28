@@ -1,16 +1,60 @@
 "use client";
 
 import { useState } from "react";
-import { generateReading, type BirthProfile, type Reading } from "@/lib/astrology";
+import {
+  generateReading,
+  SIGNS,
+  type BirthProfile,
+  type Reading,
+} from "@/lib/astrology";
 
+const ROMAN = [
+  "I", "II", "III", "IV", "V", "VI",
+  "VII", "VIII", "IX", "X", "XI", "XII",
+];
+
+function romanFor(signKey: string) {
+  const i = SIGNS.findIndex((s) => s.key === signKey);
+  return i >= 0 ? ROMAN[i] : "";
+}
+
+/* 금빛 별점 */
 function Stars({ n }: { n: number }) {
   return (
-    <span className="text-amber-300" aria-label={`${n}점`}>
+    <span className="text-gold" aria-label={`${n}점`}>
       {"★".repeat(n)}
-      <span className="text-white/25">{"★".repeat(5 - n)}</span>
+      <span className="text-gold/20">{"★".repeat(5 - n)}</span>
     </span>
   );
 }
+
+/* 네 모서리 금빛 장식 */
+function Corners() {
+  return (
+    <>
+      <span className="tarot-corner left-2 top-2">✦</span>
+      <span className="tarot-corner right-2 top-2">✦</span>
+      <span className="tarot-corner bottom-2 left-2">✦</span>
+      <span className="tarot-corner bottom-2 right-2">✦</span>
+    </>
+  );
+}
+
+/* 금빛 섹션 제목 */
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mb-4 flex items-center justify-center gap-3">
+      <span className="h-px w-8 bg-gradient-to-r from-transparent to-gold/40" />
+      <h3 className="font-serif text-sm tracking-[0.25em] text-gold">{children}</h3>
+      <span className="h-px w-8 bg-gradient-to-l from-transparent to-gold/40" />
+    </div>
+  );
+}
+
+const inputClass =
+  "w-full rounded-md border border-gold/25 bg-[#0c0a26]/70 px-3 py-2.5 text-[#f3e9d2] placeholder:text-indigo-200/30 outline-none transition focus:border-gold/70 focus:ring-1 focus:ring-gold/40";
+const labelClass =
+  "font-serif mb-1.5 block text-xs tracking-[0.2em] text-gold/80";
 
 export default function FortuneApp() {
   const [name, setName] = useState("");
@@ -55,240 +99,292 @@ export default function FortuneApp() {
   // ── 입력 폼 화면 ──────────────────────────────────────────────
   if (!reading) {
     return (
-      <div className="w-80 rounded-2xl bg-white/10 p-6 shadow-lg backdrop-blur sm:w-96">
-        <h2 className="mb-1 text-center text-lg font-semibold text-white">
-          🔮 나의 정보 입력
-        </h2>
-        <p className="mb-5 text-center text-xs text-slate-300">
-          모던 점성학으로 오늘의 운세를 읽어드려요
-        </p>
+      <div className="tarot-frame animate-rise relative w-[21rem] rounded-xl p-7 sm:w-96">
+        <Corners />
+        <div className="tarot-inline rounded-lg p-6">
+          <p className="font-serif mb-1 text-center text-xs tracking-[0.35em] text-gold/70">
+            ☾ ASTRA ☽
+          </p>
+          <h2 className="font-gowun mb-1 text-center text-xl text-[#f3e9d2]">
+            나의 별을 알려주세요
+          </h2>
+          <p className="font-gowun mb-6 text-center text-xs text-indigo-100/50">
+            이름과 태어난 순간이 오늘의 카드를 부릅니다
+          </p>
 
-        <label className="mb-1 block text-sm text-slate-200">이름</label>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="홍길동"
-          className="mb-4 w-full rounded-lg border border-white/20 bg-slate-900/50 px-3 py-2 text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none"
-        />
+          <label className={labelClass}>이름</label>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="홍길동"
+            className={`${inputClass} mb-4`}
+          />
 
-        <label className="mb-1 block text-sm text-slate-200">생년월일</label>
-        <div className="mb-4 grid grid-cols-3 gap-2">
-          <input
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            inputMode="numeric"
-            placeholder="1995"
-            className="rounded-lg border border-white/20 bg-slate-900/50 px-3 py-2 text-center text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none"
-          />
-          <input
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-            inputMode="numeric"
-            placeholder="월"
-            className="rounded-lg border border-white/20 bg-slate-900/50 px-3 py-2 text-center text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none"
-          />
-          <input
-            value={day}
-            onChange={(e) => setDay(e.target.value)}
-            inputMode="numeric"
-            placeholder="일"
-            className="rounded-lg border border-white/20 bg-slate-900/50 px-3 py-2 text-center text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none"
-          />
-        </div>
+          <label className={labelClass}>생년월일</label>
+          <div className="mb-4 grid grid-cols-3 gap-2">
+            <input
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              inputMode="numeric"
+              placeholder="1995"
+              className={`${inputClass} text-center`}
+            />
+            <input
+              value={month}
+              onChange={(e) => setMonth(e.target.value)}
+              inputMode="numeric"
+              placeholder="월"
+              className={`${inputClass} text-center`}
+            />
+            <input
+              value={day}
+              onChange={(e) => setDay(e.target.value)}
+              inputMode="numeric"
+              placeholder="일"
+              className={`${inputClass} text-center`}
+            />
+          </div>
 
-        <label className="mb-1 block text-sm text-slate-200">
-          태어난 시간 <span className="text-slate-400">(상승궁 추정에 사용)</span>
-        </label>
-        <div className="mb-5 grid grid-cols-2 gap-2">
-          <select
-            value={hour}
-            onChange={(e) => setHour(e.target.value)}
-            className="w-full rounded-lg border border-white/20 bg-slate-900/50 px-3 py-2 text-white focus:border-indigo-400 focus:outline-none"
+          <label className={labelClass}>
+            태어난 시간 <span className="text-indigo-100/40">· 상승궁 추정</span>
+          </label>
+          <div className="mb-6 grid grid-cols-2 gap-2">
+            <select
+              value={hour}
+              onChange={(e) => setHour(e.target.value)}
+              className={inputClass}
+            >
+              <option value="unknown">모름</option>
+              {Array.from({ length: 24 }, (_, i) => (
+                <option key={i} value={i}>
+                  {String(i).padStart(2, "0")}시
+                </option>
+              ))}
+            </select>
+            <select
+              value={minute}
+              onChange={(e) => setMinute(e.target.value)}
+              disabled={hour === "unknown"}
+              className={`${inputClass} disabled:opacity-40`}
+            >
+              {Array.from({ length: 60 }, (_, i) => (
+                <option key={i} value={i}>
+                  {String(i).padStart(2, "0")}분
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {error && (
+            <p className="font-gowun mb-3 text-center text-sm text-rose-300">{error}</p>
+          )}
+
+          <button
+            onClick={handleSubmit}
+            className="font-serif group w-full rounded-md border border-gold/50 bg-gradient-to-b from-gold/20 to-gold/5 px-8 py-3 tracking-[0.15em] text-gold shadow-[0_0_20px_-6px_rgba(233,200,119,0.6)] transition hover:from-gold/30 hover:to-gold/10 hover:shadow-[0_0_28px_-4px_rgba(233,200,119,0.8)] active:scale-95"
           >
-            <option value="unknown">모름</option>
-            {Array.from({ length: 24 }, (_, i) => (
-              <option key={i} value={i}>
-                {String(i).padStart(2, "0")}시
-              </option>
-            ))}
-          </select>
-          <select
-            value={minute}
-            onChange={(e) => setMinute(e.target.value)}
-            disabled={hour === "unknown"}
-            className="w-full rounded-lg border border-white/20 bg-slate-900/50 px-3 py-2 text-white focus:border-indigo-400 focus:outline-none disabled:opacity-40"
-          >
-            {Array.from({ length: 60 }, (_, i) => (
-              <option key={i} value={i}>
-                {String(i).padStart(2, "0")}분
-              </option>
-            ))}
-          </select>
+            ✦ 오늘의 카드 뽑기 ✦
+          </button>
         </div>
-
-        {error && <p className="mb-3 text-center text-sm text-rose-300">{error}</p>}
-
-        <button
-          onClick={handleSubmit}
-          className="w-full rounded-full bg-indigo-600 px-8 py-3 font-medium text-white shadow-md transition hover:bg-indigo-700 active:scale-95"
-        >
-          오늘의 운세 보기
-        </button>
       </div>
     );
   }
 
   // ── 결과 화면 ────────────────────────────────────────────────
   return (
-    <div className="flex flex-col items-center gap-8">
-      {/* 뒤집히는 요약 카드 */}
-      <div className="[perspective:1200px]">
+    <div className="animate-rise flex flex-col items-center gap-9">
+      {/* 뒤집히는 타로 카드 */}
+      <div className="[perspective:1400px]">
         <div
-          className={`relative h-80 w-56 select-none transition-transform duration-700 [transform-style:preserve-3d] sm:h-96 sm:w-64 ${
+          className={`relative h-[26rem] w-64 select-none transition-transform duration-[900ms] [transform-style:preserve-3d] sm:h-[28rem] sm:w-72 ${
             flipped ? "[transform:rotateY(180deg)]" : ""
           }`}
         >
-          {/* Front */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 p-6 text-center shadow-xl [backface-visibility:hidden]">
-            <span className="text-6xl">🔮</span>
-            <p className="text-lg font-semibold text-white">오늘의 운세</p>
+          {/* Front (카드 뒷면 문양) */}
+          <div className="tarot-frame absolute inset-0 rounded-xl p-4 [backface-visibility:hidden]">
+            <Corners />
+            <div className="tarot-inline flex h-full w-full flex-col items-center justify-center gap-4 rounded-lg">
+              <span className="text-5xl text-gold">☾</span>
+              <span className="font-serif text-xs tracking-[0.4em] text-gold/70">
+                ORACULUM
+              </span>
+              <span className="text-3xl text-gold/80">✦</span>
+            </div>
           </div>
 
-          {/* Back */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-amber-400 to-pink-500 p-6 text-center shadow-xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
-            <span className="text-5xl">{reading.sunSign.symbol}</span>
-            <p className="text-sm text-white/90">{reading.name} 님</p>
-            <p className="text-lg font-bold text-white">{reading.sunSign.name}</p>
-            <p className="text-xs text-white/80">{reading.themeLine}</p>
-            <div className="mt-2 rounded-full bg-white/25 px-4 py-1 text-sm font-medium text-white">
-              오늘의 키워드 · {reading.keyword}
+          {/* Back (별자리 아르카나) */}
+          <div className="tarot-frame absolute inset-0 rounded-xl p-4 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+            <Corners />
+            <div className="tarot-inline flex h-full w-full flex-col items-center justify-between rounded-lg py-6">
+              <span className="font-serif text-sm tracking-[0.3em] text-gold/80">
+                {romanFor(reading.sunSign.key)}
+              </span>
+
+              <div className="flex flex-col items-center gap-3">
+                <span
+                  className="text-7xl text-gold"
+                  style={{ filter: "drop-shadow(0 0 14px rgba(233,200,119,0.55))" }}
+                >
+                  {reading.sunSign.symbol}
+                </span>
+                <span className="font-gowun text-xs text-indigo-100/60">
+                  {reading.name} 님의 별
+                </span>
+              </div>
+
+              <div className="flex flex-col items-center gap-2 px-3 text-center">
+                <span className="font-gowun text-xl tracking-wide text-gold">
+                  {reading.sunSign.name}
+                </span>
+                <span className="font-gowun text-xs text-indigo-100/60">
+                  {reading.themeLine}
+                </span>
+                <span className="mt-1 rounded-full border border-gold/30 px-3 py-1 font-gowun text-xs text-indigo-100/80">
+                  오늘의 키워드 · {reading.keyword}
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* 상세 결과 패널 */}
-      <div className="w-80 rounded-2xl bg-white/10 p-6 shadow-lg backdrop-blur sm:w-96">
-        {/* 별자리 요약 */}
-        <div className="mb-5 flex items-center justify-between gap-2 rounded-xl bg-white/10 p-3 text-sm text-white">
-          <div className="text-center">
-            <p className="text-xs text-slate-300">태양궁</p>
-            <p className="font-semibold">
-              {reading.sunSign.symbol} {reading.sunSign.name}
-            </p>
-            <p className="text-xs text-slate-400">{reading.sunSign.element} · {reading.sunSign.range}</p>
+      <div className="tarot-frame w-[21rem] rounded-xl p-7 sm:w-[26rem]">
+        <div className="tarot-inline rounded-lg p-5 sm:p-6">
+          {/* 태양궁 / 상승궁 */}
+          <div className="mb-6 flex items-stretch justify-between gap-2 rounded-lg border border-gold/15 bg-[#0c0a26]/50 p-3">
+            <div className="flex-1 text-center">
+              <p className="font-serif text-[10px] tracking-[0.2em] text-gold/70">
+                태양궁 · SUN
+              </p>
+              <p className="font-gowun mt-1 text-[#f3e9d2]">
+                {reading.sunSign.symbol} {reading.sunSign.name}
+              </p>
+              <p className="font-gowun text-[11px] text-indigo-100/50">
+                {reading.sunSign.element} · {reading.sunSign.range}
+              </p>
+            </div>
+            <div className="w-px bg-gold/20" />
+            <div className="flex-1 text-center">
+              <p className="font-serif text-[10px] tracking-[0.2em] text-gold/70">
+                상승궁 · ASC
+              </p>
+              <p className="font-gowun mt-1 text-[#f3e9d2]">
+                {reading.ascendant
+                  ? `${reading.ascendant.symbol} ${reading.ascendant.name}`
+                  : "—"}
+              </p>
+              <p className="font-gowun text-[11px] text-indigo-100/50">
+                {reading.ascendant ? "태어난 시간 기반" : "시간 미입력"}
+              </p>
+            </div>
           </div>
-          <div className="h-8 w-px bg-white/20" />
-          <div className="text-center">
-            <p className="text-xs text-slate-300">상승궁(추정)</p>
-            <p className="font-semibold">
-              {reading.ascendant
-                ? `${reading.ascendant.symbol} ${reading.ascendant.name}`
-                : "—"}
-            </p>
-            <p className="text-xs text-slate-400">
-              {reading.ascendant ? "태어난 시간 기반" : "시간 미입력"}
-            </p>
-          </div>
-        </div>
 
-        {/* 별자리 성격 프로필 */}
-        <div className="mb-5 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 p-4 ring-1 ring-white/10">
-          <h3 className="text-center text-base font-semibold text-white">
-            {reading.sunSign.symbol} {reading.sunSign.name}, 당신은
-          </h3>
-          <p className="mt-1 mb-3 text-center text-xs italic text-indigo-200">
+          {/* 별자리 성격 프로필 */}
+          <SectionTitle>{reading.sunSign.name}, 당신은</SectionTitle>
+          <p className="font-gowun mb-4 text-center text-sm italic text-gold/90">
             “{reading.signProfile.tagline}”
           </p>
-
-          <p className="mb-3 text-sm leading-relaxed text-slate-100">
+          <p className="font-gowun mb-4 text-sm leading-loose text-indigo-50/90">
             {reading.signProfile.personality}
           </p>
-
-          <div className="flex flex-col gap-2 text-sm leading-relaxed">
-            <p className="text-emerald-100">
-              <span className="font-semibold">✨ 빛나는 점 · </span>
+          <div className="mb-4 flex flex-col gap-2.5 font-gowun text-sm leading-relaxed">
+            <p className="text-indigo-50/85">
+              <span className="text-gold">✧ 빛나는 점 · </span>
               {reading.signProfile.strength}
             </p>
-            <p className="text-amber-100">
-              <span className="font-semibold">🌙 살며시 조심할 점 · </span>
+            <p className="text-indigo-50/85">
+              <span className="text-gold">☾ 살며시 조심할 점 · </span>
               {reading.signProfile.shadow}
             </p>
-            <p className="text-rose-100">
-              <span className="font-semibold">💗 사랑할 때 · </span>
+            <p className="text-indigo-50/85">
+              <span className="text-gold">♡ 사랑할 때 · </span>
               {reading.signProfile.inLove}
             </p>
           </div>
-
-          <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+          <div className="mb-7 flex flex-wrap justify-center gap-1.5">
             {reading.signProfile.keywords.map((k) => (
               <span
                 key={k}
-                className="rounded-full bg-white/15 px-3 py-1 text-xs text-white"
+                className="font-gowun rounded-full border border-gold/25 bg-gold/5 px-3 py-1 text-xs text-gold/90"
               >
-                #{k}
+                {k}
               </span>
             ))}
           </div>
-        </div>
 
-        {/* 총평 */}
-        <p className="mb-5 rounded-xl bg-white/5 p-3 text-sm leading-relaxed text-slate-100">
-          ✨ 오늘의 흐름 · {reading.overallText}
-        </p>
+          {/* 오늘의 흐름 */}
+          <SectionTitle>오늘의 흐름</SectionTitle>
+          <p className="font-gowun mb-7 rounded-lg border border-gold/15 bg-[#0c0a26]/40 p-4 text-center text-sm leading-loose text-indigo-50/90">
+            {reading.overallText}
+          </p>
 
-        {/* 운세 지수 */}
-        <h3 className="mb-3 text-center text-base font-semibold text-white">오늘의 운세 지수</h3>
-        <div className="mb-5 flex flex-col gap-3">
-          {reading.categories.map((c) => (
-            <div key={c.label}>
-              <div className="mb-1 flex items-center justify-between text-sm text-slate-200">
-                <span>{c.label}</span>
-                <Stars n={c.stars} />
+          {/* 운세 지수 */}
+          <SectionTitle>오늘의 운세 지수</SectionTitle>
+          <div className="mb-7 flex flex-col gap-3.5">
+            {reading.categories.map((c) => (
+              <div key={c.label}>
+                <div className="mb-1 flex items-center justify-between font-gowun text-sm text-indigo-50/90">
+                  <span>{c.label}</span>
+                  <Stars n={c.stars} />
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-[#0c0a26]/80 ring-1 ring-gold/10">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-gold/70 to-gold transition-all duration-1000"
+                    style={{ width: `${c.value}%` }}
+                  />
+                </div>
+                <p className="font-gowun mt-1.5 text-xs leading-relaxed text-indigo-100/55">
+                  {c.text}
+                </p>
               </div>
-              <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-700">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-400 to-pink-500 transition-all duration-700"
-                  style={{ width: `${c.value}%` }}
-                />
-              </div>
-              <p className="mt-1 text-xs leading-relaxed text-slate-300">{c.text}</p>
+            ))}
+          </div>
+
+          {/* 조언 */}
+          <SectionTitle>별의 조언</SectionTitle>
+          <div className="mb-7 grid grid-cols-2 gap-2 font-gowun text-sm">
+            <div className="rounded-lg border border-emerald-300/20 bg-emerald-400/5 p-3 text-emerald-100/90">
+              <p className="mb-1 text-gold">☀ 하면 좋은 것</p>
+              <p className="text-xs leading-relaxed">{reading.doAdvice}</p>
             </div>
-          ))}
-        </div>
-
-        {/* 조언 */}
-        <div className="mb-5 grid grid-cols-2 gap-2 text-sm">
-          <div className="rounded-xl bg-emerald-500/15 p-3 text-emerald-100">
-            <p className="mb-1 font-semibold">👍 오늘 하면 좋은 것</p>
-            <p className="text-xs leading-relaxed">{reading.doAdvice}</p>
+            <div className="rounded-lg border border-rose-300/20 bg-rose-400/5 p-3 text-rose-100/90">
+              <p className="mb-1 text-gold">☾ 피할 것</p>
+              <p className="text-xs leading-relaxed">{reading.dontAdvice}</p>
+            </div>
           </div>
-          <div className="rounded-xl bg-rose-500/15 p-3 text-rose-100">
-            <p className="mb-1 font-semibold">🙅 오늘 피할 것</p>
-            <p className="text-xs leading-relaxed">{reading.dontAdvice}</p>
+
+          {/* 행운 정보 */}
+          <SectionTitle>행운의 인연</SectionTitle>
+          <div className="grid grid-cols-2 gap-2 font-gowun text-sm text-indigo-50/90">
+            {[
+              `🎁 아이템 · ${reading.lucky.item}`,
+              `🎨 색 · ${reading.lucky.color}`,
+              `🔢 숫자 · ${reading.lucky.number}`,
+              `🧭 방향 · ${reading.lucky.direction}`,
+              `⏰ 시간 · ${reading.lucky.time}`,
+              `💞 궁합 · ${reading.compatibleSign}`,
+            ].map((t) => (
+              <div
+                key={t}
+                className="rounded-lg border border-gold/10 bg-[#0c0a26]/40 p-2.5"
+              >
+                {t}
+              </div>
+            ))}
           </div>
-        </div>
 
-        {/* 행운 정보 */}
-        <div className="grid grid-cols-2 gap-2 text-sm text-white">
-          <div className="rounded-lg bg-white/5 p-2">🎁 아이템 · {reading.lucky.item}</div>
-          <div className="rounded-lg bg-white/5 p-2">🎨 색 · {reading.lucky.color}</div>
-          <div className="rounded-lg bg-white/5 p-2">🔢 숫자 · {reading.lucky.number}</div>
-          <div className="rounded-lg bg-white/5 p-2">🧭 방향 · {reading.lucky.direction}</div>
-          <div className="rounded-lg bg-white/5 p-2">⏰ 시간 · {reading.lucky.time}</div>
-          <div className="rounded-lg bg-white/5 p-2">💞 궁합 · {reading.compatibleSign}</div>
+          <p className="font-gowun mt-5 text-center text-[11px] text-indigo-100/40">
+            ✦ 이 카드는 오늘 하루, 당신 곁에 머뭅니다 ✦
+          </p>
         </div>
-
-        <p className="mt-4 text-center text-[11px] text-slate-400">
-          ※ 이 운세는 오늘 하루 동안 동일하게 유지됩니다.
-        </p>
       </div>
 
       <button
         onClick={handleReset}
-        className="rounded-full bg-indigo-600 px-8 py-3 font-medium text-white shadow-md transition hover:bg-indigo-700 active:scale-95"
+        className="font-serif rounded-md border border-gold/40 bg-gold/5 px-8 py-3 tracking-[0.15em] text-gold/90 transition hover:bg-gold/15 active:scale-95"
       >
-        정보 다시 입력
+        다시 별을 부르기
       </button>
     </div>
   );

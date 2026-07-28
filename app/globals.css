@@ -1,26 +1,152 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 밤하늘 팔레트 */
+  --night-0: #05040f; /* 가장 깊은 밤 */
+  --night-1: #0b0a24; /* 심연의 남색 */
+  --night-2: #171445; /* 별 사이의 보라 */
+  --gold: #e9c877; /* 금빛 */
+  --gold-soft: #f4e4b8;
+  --parchment: #f3e9d2;
+  --foreground: #ece7ff;
 }
 
 @theme inline {
-  --color-background: var(--background);
+  --color-background: var(--night-0);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-gold: var(--gold);
+  --font-sans: var(--font-myeongjo);
+  --font-serif: var(--font-cinzel);
+  --font-gowun: var(--font-gowun);
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-myeongjo), "Nanum Myeongjo", serif;
+  background-color: var(--night-0);
+}
+
+/* ── 밤하늘 배경 ─────────────────────────────────────────── */
+.night-sky {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(120, 96, 220, 0.35), transparent 60%),
+    radial-gradient(900px 500px at 85% 20%, rgba(64, 90, 200, 0.22), transparent 55%),
+    radial-gradient(800px 600px at 10% 90%, rgba(150, 90, 200, 0.18), transparent 55%),
+    linear-gradient(180deg, var(--night-1) 0%, var(--night-0) 55%, #030210 100%);
+}
+
+/* 별: 두 겹의 미세한 점들 + 반짝임 */
+.stars,
+.stars::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  z-index: -1;
+  background-image:
+    radial-gradient(1.5px 1.5px at 20% 30%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 75% 20%, #fff, transparent),
+    radial-gradient(1px 1px at 40% 70%, #dfe6ff, transparent),
+    radial-gradient(1.5px 1.5px at 60% 50%, #fff, transparent),
+    radial-gradient(1px 1px at 90% 60%, #cbd6ff, transparent),
+    radial-gradient(1px 1px at 15% 85%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 50% 15%, #fff, transparent),
+    radial-gradient(1px 1px at 85% 90%, #e7ecff, transparent),
+    radial-gradient(1px 1px at 30% 55%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 65% 80%, #fff, transparent);
+  background-repeat: repeat;
+  background-size: 420px 420px;
+  animation: twinkle 5s ease-in-out infinite;
+}
+.stars::after {
+  background-size: 300px 300px;
+  opacity: 0.6;
+  animation-delay: 2.5s;
+  animation-duration: 7s;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.9; }
+}
+
+/* 달빛 */
+.moon-glow {
+  position: absolute;
+  top: 6%;
+  right: 10%;
+  width: 90px;
+  height: 90px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 35%, #fdf6e3, #e9c877 60%, transparent 72%);
+  box-shadow: 0 0 60px 18px rgba(233, 200, 119, 0.35);
+  z-index: -1;
+  animation: breathe 8s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+
+/* ── 타로 카드 프레임 (라이더-웨이트 풍) ─────────────────── */
+.tarot-frame {
+  background:
+    radial-gradient(120% 120% at 50% 0%, rgba(233, 200, 119, 0.10), transparent 55%),
+    linear-gradient(160deg, #201a4d 0%, #130f36 55%, #0d0a2b 100%);
+  border: 1px solid rgba(233, 200, 119, 0.55);
+  box-shadow:
+    0 0 0 6px rgba(9, 7, 28, 0.9),
+    0 0 0 7px rgba(233, 200, 119, 0.45),
+    0 24px 60px -12px rgba(0, 0, 0, 0.8),
+    inset 0 0 40px rgba(120, 96, 220, 0.15);
+}
+
+/* 카드 안쪽 얇은 금선 */
+.tarot-inline {
+  border: 1px solid rgba(233, 200, 119, 0.4);
+  box-shadow: inset 0 0 20px rgba(233, 200, 119, 0.08);
+}
+
+/* 코너 장식 */
+.tarot-corner {
+  position: absolute;
+  color: var(--gold);
+  font-size: 0.8rem;
+  opacity: 0.85;
+  line-height: 1;
+}
+
+/* 금빛 텍스트 */
+.text-gold {
+  color: var(--gold);
+}
+.gold-shimmer {
+  background: linear-gradient(100deg, var(--gold) 0%, var(--gold-soft) 45%, #fffdf5 50%, var(--gold-soft) 55%, var(--gold) 100%);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+
+@keyframes shimmer {
+  to { background-position: 220% center; }
+}
+
+.font-serif { font-family: var(--font-cinzel), serif; }
+.font-gowun { font-family: var(--font-gowun), serif; }
+
+/* 부드러운 등장 */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-rise { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stars, .stars::after, .moon-glow, .gold-shimmer, .animate-rise {
+    animation: none;
+  }
 }
