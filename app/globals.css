@@ -150,15 +150,14 @@ body {
 
 /* ── 타로 카드 프레임 (라이더-웨이트 풍) ─────────────────── */
 .tarot-frame {
-  background:
-    radial-gradient(120% 120% at 50% 0%, rgba(233, 200, 119, 0.10), transparent 55%),
-    linear-gradient(160deg, #201a4d 0%, #130f36 55%, #0d0a2b 100%);
+  /* 배경 채움 없이 밤하늘이 비쳐 보이게 — 금빛 테두리만 유지 */
+  background: transparent;
   border: 1px solid rgba(233, 200, 119, 0.55);
   box-shadow:
-    0 0 0 6px rgba(9, 7, 28, 0.9),
-    0 0 0 7px rgba(233, 200, 119, 0.45),
-    0 24px 60px -12px rgba(0, 0, 0, 0.8),
-    inset 0 0 40px rgba(120, 96, 220, 0.15);
+    0 0 0 6px rgba(9, 7, 28, 0.28),
+    0 0 0 7px rgba(233, 200, 119, 0.4),
+    0 24px 60px -16px rgba(0, 0, 0, 0.55),
+    inset 0 0 46px rgba(120, 96, 220, 0.1);
 }
 
 /* 카드 안쪽 얇은 금선 */
