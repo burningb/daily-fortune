@@ -18,6 +18,7 @@ export default function FortuneApp() {
   const [month, setMonth] = useState("");
   const [day, setDay] = useState("");
   const [hour, setHour] = useState<string>("unknown");
+  const [minute, setMinute] = useState<string>("0");
   const [error, setError] = useState("");
 
   const [reading, setReading] = useState<Reading | null>(null);
@@ -40,6 +41,7 @@ export default function FortuneApp() {
       month: m,
       day: d,
       hour: hour === "unknown" ? null : Number(hour),
+      minute: hour === "unknown" ? 0 : Number(minute),
     };
     setReading(generateReading(profile, new Date()));
     setFlipped(true);
@@ -97,18 +99,32 @@ export default function FortuneApp() {
         <label className="mb-1 block text-sm text-slate-200">
           태어난 시간 <span className="text-slate-400">(상승궁 추정에 사용)</span>
         </label>
-        <select
-          value={hour}
-          onChange={(e) => setHour(e.target.value)}
-          className="mb-5 w-full rounded-lg border border-white/20 bg-slate-900/50 px-3 py-2 text-white focus:border-indigo-400 focus:outline-none"
-        >
-          <option value="unknown">모름</option>
-          {Array.from({ length: 24 }, (_, i) => (
-            <option key={i} value={i}>
-              {String(i).padStart(2, "0")}시
-            </option>
-          ))}
-        </select>
+        <div className="mb-5 grid grid-cols-2 gap-2">
+          <select
+            value={hour}
+            onChange={(e) => setHour(e.target.value)}
+            className="w-full rounded-lg border border-white/20 bg-slate-900/50 px-3 py-2 text-white focus:border-indigo-400 focus:outline-none"
+          >
+            <option value="unknown">모름</option>
+            {Array.from({ length: 24 }, (_, i) => (
+              <option key={i} value={i}>
+                {String(i).padStart(2, "0")}시
+              </option>
+            ))}
+          </select>
+          <select
+            value={minute}
+            onChange={(e) => setMinute(e.target.value)}
+            disabled={hour === "unknown"}
+            className="w-full rounded-lg border border-white/20 bg-slate-900/50 px-3 py-2 text-white focus:border-indigo-400 focus:outline-none disabled:opacity-40"
+          >
+            {Array.from({ length: 60 }, (_, i) => (
+              <option key={i} value={i}>
+                {String(i).padStart(2, "0")}분
+              </option>
+            ))}
+          </select>
+        </div>
 
         {error && <p className="mb-3 text-center text-sm text-rose-300">{error}</p>}
 

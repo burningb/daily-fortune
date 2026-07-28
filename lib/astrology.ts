@@ -72,9 +72,11 @@ export function getSunSign(month: number, day: number): SunSign {
 
 // 태어난 시간 → 상승궁(어센던트) 근사치.
 // 위경도 없이 계산하는 단순화 모델(일출=태양궁 기준, 약 2시간마다 한 궁씩 이동).
-export function estimateAscendant(sun: SunSign, birthHour: number): SunSign {
+// 분까지 반영해 소수 시각으로 계산한다.
+export function estimateAscendant(sun: SunSign, birthHour: number, birthMinute = 0): SunSign {
   const sunIndex = SIGNS.findIndex((s) => s.key === sun.key);
-  const offset = Math.floor(((birthHour - 6 + 24) % 24) / 2);
+  const decimalHour = birthHour + birthMinute / 60;
+  const offset = Math.floor(((decimalHour - 6 + 24) % 24) / 2);
   return SIGNS[(sunIndex + offset) % 12];
 }
 
@@ -197,13 +199,14 @@ export type BirthProfile = {
   month: number;
   day: number;
   hour: number | null; // 모르면 null
+  minute: number; // 시간을 모르면 의미 없음(0)
 };
 
 export function generateReading(profile: BirthProfile, today: Date): Reading {
   const todayStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
   const seedStr = `${profile.name}|${profile.year}-${profile.month}-${profile.day}|${
     profile.hour ?? "x"
-  }|${todayStr}`;
+  }:${profile.hour !== null ? profile.minute : "x"}|${todayStr}`;
   const seed = xmur3(seedStr)();
   const rand = mulberry32(seed);
 
@@ -212,7 +215,9 @@ export function generateReading(profile: BirthProfile, today: Date): Reading {
 
   const sunSign = getSunSign(profile.month, profile.day);
   const ascendant =
-    profile.hour !== null ? estimateAscendant(sunSign, profile.hour) : null;
+    profile.hour !== null
+      ? estimateAscendant(sunSign, profile.hour, profile.minute)
+      : null;
 
   const makeCategory = (label: string, pool: string[]): CategoryReading => {
     const value = scoreValue();
