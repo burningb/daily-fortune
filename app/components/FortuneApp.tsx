@@ -516,7 +516,7 @@ export default function FortuneApp() {
           </span>
           <span className="h-px w-8 bg-gradient-to-l from-transparent to-gold/40" />
         </div>
-        <TarotDraw />
+        <TarotDraw dateKey={dateKey} />
       </div>
     </div>
   );
