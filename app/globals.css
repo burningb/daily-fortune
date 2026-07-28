@@ -145,13 +145,27 @@ h1, h2, h3 {
   position: absolute;
   top: 6%;
   right: 10%;
-  width: 90px;
-  height: 90px;
+  width: 84px;
+  height: 84px;
   border-radius: 9999px;
-  background: radial-gradient(circle at 35% 35%, #fdf6e3, #e9c877 60%, transparent 72%);
-  box-shadow: 0 0 60px 18px rgba(233, 200, 119, 0.35);
+  background: radial-gradient(circle at 38% 38%, #fdf6e3, #e9c877 62%, #d9b45f 88%);
+  /* 오른쪽 위를 원형으로 도려내 초승달 모양으로 */
+  -webkit-mask: radial-gradient(circle at 72% 26%, transparent 47%, #000 48%);
+  mask: radial-gradient(circle at 72% 26%, transparent 47%, #000 48%);
+  /* 글로우가 초승달 실루엣을 따라가도록 drop-shadow 사용 */
+  filter: drop-shadow(0 0 12px rgba(233, 200, 119, 0.45));
   z-index: -1;
   animation: breathe 8s ease-in-out infinite;
+}
+
+/* 모바일: 더 작게, 모서리로 붙여 제목을 가리지 않게 */
+@media (max-width: 640px) {
+  .moon-glow {
+    width: 54px;
+    height: 54px;
+    top: 2%;
+    right: 4%;
+  }
 }
 
 @keyframes breathe {
