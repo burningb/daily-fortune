@@ -420,16 +420,33 @@ export default function FortuneApp() {
             ))}
           </div>
 
-          {/* 조언 */}
+          {/* 별의 조언 — 오늘의 태양·달과 나의 별자리 관계 */}
           <SectionTitle>별의 조언</SectionTitle>
-          <div className="mb-7 grid grid-cols-2 gap-2 font-gowun text-sm">
-            <div className="rounded-lg border border-emerald-300/20 bg-emerald-400/5 p-3 text-emerald-100/90">
-              <p className="mb-1 text-gold">☀ 하면 좋은 것</p>
-              <p className="text-xs leading-relaxed">{reading.doAdvice}</p>
+          <div className="mb-7 flex flex-col gap-2 font-gowun text-sm">
+            <div className="rounded-lg border border-gold/15 bg-[#0c0a26]/40 p-3">
+              <p className="mb-1.5 flex items-center gap-2 text-gold">
+                <span>☀ 오늘의 태양 · {reading.starAdvice.sun.transitSignName}</span>
+                <span className="rounded-full border border-gold/25 px-2 py-0.5 text-[10px] text-gold/80">
+                  {reading.starAdvice.sun.relationLabel}
+                </span>
+              </p>
+              <p className="text-xs leading-relaxed text-indigo-50/85">
+                {reading.starAdvice.sun.text}
+              </p>
             </div>
-            <div className="rounded-lg border border-rose-300/20 bg-rose-400/5 p-3 text-rose-100/90">
-              <p className="mb-1 text-gold">☾ 피할 것</p>
-              <p className="text-xs leading-relaxed">{reading.dontAdvice}</p>
+            <div className="rounded-lg border border-gold/15 bg-[#0c0a26]/40 p-3">
+              <p className="mb-1.5 flex items-center gap-2 text-gold">
+                <span>
+                  ☾ 오늘의 달 · {reading.starAdvice.moon.transitSignName}
+                  <span className="text-indigo-100/45"> · {reading.starAdvice.moon.phase}</span>
+                </span>
+                <span className="rounded-full border border-gold/25 px-2 py-0.5 text-[10px] text-gold/80">
+                  {reading.starAdvice.moon.relationLabel}
+                </span>
+              </p>
+              <p className="text-xs leading-relaxed text-indigo-50/85">
+                {reading.starAdvice.moon.text}
+              </p>
             </div>
           </div>
 

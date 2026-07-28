@@ -46,10 +46,20 @@ export type Reading = {
     direction: string;
     time: string;
   };
-  doAdvice: string;
-  dontAdvice: string;
+  starAdvice: StarAdvice;
   compatibleSign: string;
   keyword: string;
+};
+
+// 오늘의 태양·달이 사용자의 별자리와 맺는 관계 기반 조언
+export type LuminaryAdvice = {
+  transitSignName: string;
+  relationLabel: string; // 겹침/조화/긴장/균형/조정/전환
+  text: string;
+};
+export type StarAdvice = {
+  sun: LuminaryAdvice;
+  moon: LuminaryAdvice & { phase: string };
 };
 
 // ── 12 별자리 정의 (양자리부터 순서대로) ──────────────────────────
@@ -493,22 +503,94 @@ const DIRECTIONS = ["동쪽", "서쪽", "남쪽", "북쪽", "남동쪽", "남서
 const TIMES = ["이른 아침", "오전 9~11시", "정오 무렵", "오후 2~4시", "해 질 무렵", "저녁 7~9시"];
 const KEYWORDS = ["용기", "균형", "설렘", "집중", "여유", "성장", "연결", "직관", "정리", "도약", "회복", "표현"];
 
-const DO_ADVICE = [
-  "먼저 안부를 건네보세요.",
-  "미뤄둔 일 하나를 오늘 끝내보세요.",
-  "감사한 마음을 말로 표현하세요.",
-  "새로운 길로 돌아가 보세요.",
-  "직관이 이끄는 선택을 믿으세요.",
-  "잠깐이라도 나를 위한 시간을 가지세요.",
+// ── 별의 조언: 오늘의 태양·달과 사용자 별자리의 관계 ────────────────
+// 두 별자리 사이 거리(사인 애스펙트)로 관계의 성격을 판정 (모던 점성학, 정도 불필요)
+type Relation = { label: string; sun: string; moon: string };
+const RELATIONS: Relation[] = [
+  {
+    label: "겹침",
+    sun: "오늘의 태양이 당신의 별자리와 겹쳐, 정체성과 활력이 또렷해지는 날입니다. 미루던 나를 위한 일에 에너지를 써보세요.",
+    moon: "오늘의 달이 당신의 별자리와 겹쳐, 감정이 평소보다 크게 느껴질 수 있어요. 마음의 신호를 억누르기보다 알아차려 보세요.",
+  },
+  {
+    label: "전환",
+    sun: "오늘의 태양이 당신의 별자리 곁을 지나며, 흐름이 다음 단계로 넘어가는 날입니다. 서두르지 말고 나의 리듬을 살펴보세요.",
+    moon: "오늘의 달이 당신의 별자리 곁을 지나며, 감정의 결이 바뀌어가는 날입니다. 지금의 기분을 가볍게 적어보세요.",
+  },
+  {
+    label: "조화",
+    sun: "오늘의 태양이 당신의 별자리와 부드럽게 어울려, 자연스럽게 자신감이 실리는 날입니다. 하고 싶던 일을 가볍게 시작해보세요.",
+    moon: "오늘의 달이 당신의 별자리와 편안히 어울려, 감정이 비교적 안정적으로 흐르는 날입니다. 마음이 이끄는 쪽에 귀 기울여보세요.",
+  },
+  {
+    label: "긴장",
+    sun: "오늘의 태양이 당신의 별자리와 각을 세워, 의욕과 현실 사이에 약간의 마찰이 느껴질 수 있어요. 무리한 증명보다 우선순위를 정해보세요.",
+    moon: "오늘의 달이 당신의 별자리와 각을 이루어, 감정이 예민해지기 쉬운 날입니다. 반응하기 전에 한 박자 쉬어보세요.",
+  },
+  {
+    label: "조화",
+    sun: "오늘의 태양이 당신의 별자리와 조화로운 각을 이루어, 흐름이 순조롭게 열리는 날입니다. 익숙한 강점을 믿고 나아가 보세요.",
+    moon: "오늘의 달이 당신의 별자리와 조화로운 각을 이루어, 마음이 한결 여유로운 날입니다. 편안함을 회복에 써보세요.",
+  },
+  {
+    label: "조정",
+    sun: "오늘의 태양이 당신의 별자리와 어긋난 각을 이루어, 작은 조율이 필요한 날입니다. 완벽함보다 조정에 마음을 두세요.",
+    moon: "오늘의 달이 당신의 별자리와 어긋나, 마음이 조금 어수선할 수 있어요. 억지로 정리하기보다 그대로 기록해보세요.",
+  },
+  {
+    label: "균형",
+    sun: "오늘의 태양이 당신의 별자리 맞은편에서 비추어, 나와 타인의 균형을 돌아보게 하는 날입니다. 관계 속에서 나의 자리를 확인해보세요.",
+    moon: "오늘의 달이 당신의 별자리 맞은편에 떠, 타인의 감정에 마음이 크게 움직일 수 있어요. 나의 감정과 상대의 감정을 구분해보세요.",
+  },
 ];
-const DONT_ADVICE = [
-  "즉흥적인 큰 지출은 피하세요.",
-  "확신 없는 약속은 미루세요.",
-  "감정적인 대응은 한 박자 늦추세요.",
-  "무리한 밤샘은 삼가세요.",
-  "소문에 휘둘리지 마세요.",
-  "완벽주의로 자신을 몰아세우지 마세요.",
+
+// 사인 거리(0~6) → 관계
+function signRelation(a: number, b: number): Relation {
+  const d = Math.abs(a - b);
+  return RELATIONS[Math.min(d, 12 - d)];
+}
+
+const STAR_MOON_PHASES = [
+  "신월",
+  "초승달",
+  "상현달",
+  "상현 볼록달",
+  "보름달",
+  "하현 볼록달",
+  "하현달",
+  "그믐달",
 ];
+function moonPhaseName(sunLon: number, moonLon: number): string {
+  const elong = ((moonLon - sunLon) % 360 + 360) % 360;
+  return STAR_MOON_PHASES[Math.floor(((elong + 22.5) % 360) / 45)];
+}
+
+// 별의 조언 생성 — 태양 별자리만 알면 항상 계산 가능
+function buildStarAdvice(natalSunIndex: number, today: Date, tz: number): StarAdvice {
+  const bodies = computeBodies(
+    today.getFullYear(),
+    today.getMonth() + 1,
+    today.getDate(),
+    12 - tz,
+  );
+  const tSun = Math.floor(bodies.sun / 30) % 12;
+  const tMoon = Math.floor(bodies.moon / 30) % 12;
+  const sunRel = signRelation(natalSunIndex, tSun);
+  const moonRel = signRelation(natalSunIndex, tMoon);
+  return {
+    sun: {
+      transitSignName: SIGNS[tSun].name,
+      relationLabel: sunRel.label,
+      text: sunRel.sun,
+    },
+    moon: {
+      transitSignName: SIGNS[tMoon].name,
+      relationLabel: moonRel.label,
+      text: moonRel.moon,
+      phase: moonPhaseName(bodies.sun, bodies.moon),
+    },
+  };
+}
 
 // ── 시드 기반 난수 (하루 동안 동일 결과 보장) ──────────────────────
 function xmur3(str: string): () => number {
@@ -637,8 +719,11 @@ export function generateReading(profile: BirthProfile, today: Date): Reading {
       direction: pick(DIRECTIONS),
       time: pick(TIMES),
     },
-    doAdvice: pick(DO_ADVICE),
-    dontAdvice: pick(DONT_ADVICE),
+    starAdvice: buildStarAdvice(
+      SIGNS.findIndex((s) => s.key === sunSign.key),
+      today,
+      profile.tz ?? 9,
+    ),
     compatibleSign: `${compat.symbol} ${compat.name}`,
     keyword: pick(KEYWORDS),
   };
