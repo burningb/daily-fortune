@@ -30,18 +30,22 @@ export default function ShareCard({
   question,
   dateLabel,
   dateKey,
+  profileKey,
 }: {
   headline: string;
   question: string;
   dateLabel: string;
   dateKey?: string;
+  profileKey?: string;
 }) {
   const [copied, setCopied] = useState(false);
 
-  // 오늘 뽑은 타로가 있으면 함께 표기
+  // 오늘 뽑은 타로가 있으면 함께 표기 (프로필별 키)
   const todayCard = (): string | null => {
     try {
-      const raw = localStorage.getItem("bstoday.tarot");
+      const raw = localStorage.getItem(
+        profileKey ? `bstoday.tarot:${profileKey}` : "bstoday.tarot",
+      );
       if (!raw) return null;
       const t = JSON.parse(raw);
       if (t.date === dateKey && t.card) return `${t.card.name} · ${t.card.keyword}`;

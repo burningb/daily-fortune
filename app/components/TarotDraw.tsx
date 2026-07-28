@@ -19,9 +19,17 @@ function fmtCountdown(ms: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }
 
-const EXTS = ["png", "jpg", "webp", "jpeg"];
+const EXTS = ["webp", "png", "jpg", "jpeg"];
 
-export default function TarotDraw({ dateKey }: { dateKey: string }) {
+export default function TarotDraw({
+  dateKey,
+  profileKey,
+}: {
+  dateKey: string;
+  profileKey: string;
+}) {
+  // 프로필(이름+생년월일)별로 하루 한 장 — 같은 브라우저라도 사람이 다르면 각자 뽑기
+  const storeKey = `${KEY}:${profileKey}`;
   const [card, setCard] = useState<TarotCard | null>(null);
   const [flipped, setFlipped] = useState(false);
   const [lockedToday, setLockedToday] = useState(false);
@@ -31,8 +39,11 @@ export default function TarotDraw({ dateKey }: { dateKey: string }) {
 
   // 오늘 이미 뽑았다면 그 카드를 복원 (하루 한 장)
   useEffect(() => {
+    setCard(null);
+    setFlipped(false);
+    setLockedToday(false);
     try {
-      const raw = localStorage.getItem(KEY);
+      const raw = localStorage.getItem(storeKey);
       if (!raw) return;
       const saved = JSON.parse(raw);
       if (saved.date === dateKey && saved.card) {
@@ -45,7 +56,7 @@ export default function TarotDraw({ dateKey }: { dateKey: string }) {
     } catch {
       /* ignore */
     }
-  }, [dateKey]);
+  }, [dateKey, storeKey]);
 
   // 자정까지 남은 시간(다음 카드까지)
   useEffect(() => {
@@ -65,7 +76,24 @@ export default function TarotDraw({ dateKey }: { dateKey: string }) {
     setExtIdx(0);
     setImgFailed(false);
     try {
-      localStorage.setItem(KEY, JSON.stringify({ date: dateKey, card: c }));
+      localStorage.setItem(storeKey, JSON.stringify({ date: dateKey, card: c }));
+    } catch {
+      /* ignore */
+    }
+  };
+
+  // 현재 카드 이미지를 파일로 저장
+  const saveImage = async () => {
+    if (!card) return;
+    try {
+      const res = await fetch(`${card.imgBase}.${EXTS[extIdx]}`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `tarot-${card.name}.${EXTS[extIdx]}`;
+      a.click();
+      URL.revokeObjectURL(url);
     } catch {
       /* ignore */
     }
@@ -93,7 +121,7 @@ export default function TarotDraw({ dateKey }: { dateKey: string }) {
           className={`block ${lockedToday ? "cursor-default" : "cursor-pointer"}`}
         >
           <div
-            className={`relative w-64 select-none transition-transform duration-[600ms] [aspect-ratio:2/3] [transform-style:preserve-3d] sm:w-72 ${
+            className={`relative w-[84vw] max-w-[22rem] select-none transition-transform duration-[600ms] [aspect-ratio:2/3] [transform-style:preserve-3d] sm:w-80 ${
               flipped ? "[transform:rotateY(180deg)]" : ""
             }`}
           >
@@ -150,6 +178,16 @@ export default function TarotDraw({ dateKey }: { dateKey: string }) {
         <p className="font-gowun max-w-xs text-center text-sm leading-relaxed text-indigo-50/85">
           {card.message}
         </p>
+      )}
+
+      {flipped && card && !imgFailed && (
+        <button
+          type="button"
+          onClick={saveImage}
+          className="font-serif rounded-md border border-gold/40 bg-gold/5 px-5 py-2 text-sm tracking-[0.1em] text-gold/90 transition hover:bg-gold/15 active:scale-95"
+        >
+          카드 이미지 저장
+        </button>
       )}
 
       {!flipped ? (

@@ -60,6 +60,7 @@ export default function FortuneApp() {
   const [dateLabel, setDateLabel] = useState("");
   const [dateKey, setDateKey] = useState("");
   const [yesterdayKey, setYesterdayKey] = useState("");
+  const [profileKey, setProfileKey] = useState("");
   const [savedName, setSavedName] = useState<string | null>(null);
 
   // 저장된 프로필 불러오기 (이 기기에만 저장)
@@ -155,6 +156,8 @@ export default function FortuneApp() {
     setYesterdayKey(
       `${y1.getFullYear()}-${y1.getMonth() + 1}-${y1.getDate()}`,
     );
+    // 프로필(이름+생년월일)별 식별자 — 타로 하루 1회를 사람별로 구분
+    setProfileKey(`${name.trim()}|${y}-${m}-${d}`);
   };
 
   const handleReset = () => {
@@ -477,6 +480,7 @@ export default function FortuneApp() {
           <JournalPanel
             dateKey={dateKey}
             yesterdayKey={yesterdayKey}
+            profileKey={profileKey}
             question={
               daily?.report.reflectionQuestion ??
               "오늘 나는 무엇을 느끼고 있나요?"
@@ -497,6 +501,7 @@ export default function FortuneApp() {
             }
             dateLabel={dateLabel}
             dateKey={dateKey}
+            profileKey={profileKey}
           />
         </div>
       </div>
@@ -517,7 +522,7 @@ export default function FortuneApp() {
           </span>
           <span className="h-px w-8 bg-gradient-to-l from-transparent to-gold/40" />
         </div>
-        <TarotDraw dateKey={dateKey} />
+        <TarotDraw dateKey={dateKey} profileKey={profileKey} />
       </div>
     </div>
   );

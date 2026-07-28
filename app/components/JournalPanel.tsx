@@ -29,10 +29,12 @@ function loadAll(): Record<string, Entry> {
 export default function JournalPanel({
   dateKey,
   yesterdayKey,
+  profileKey,
   question,
 }: {
   dateKey: string;
   yesterdayKey?: string;
+  profileKey?: string;
   question: string;
 }) {
   const [moods, setMoods] = useState<string[]>([]);
@@ -52,9 +54,11 @@ export default function JournalPanel({
     if (yesterdayKey && all[yesterdayKey]) {
       setYesterdayMoods(all[yesterdayKey].moods ?? []);
     }
-    // 오늘 뽑은 타로가 있으면 함께 표시
+    // 오늘 뽑은 타로가 있으면 함께 표시 (프로필별 키)
     try {
-      const raw = localStorage.getItem("bstoday.tarot");
+      const raw = localStorage.getItem(
+        profileKey ? `bstoday.tarot:${profileKey}` : "bstoday.tarot",
+      );
       if (raw) {
         const t = JSON.parse(raw);
         if (t.date === dateKey && t.card) {
@@ -64,7 +68,7 @@ export default function JournalPanel({
     } catch {
       /* ignore */
     }
-  }, [dateKey, yesterdayKey]);
+  }, [dateKey, yesterdayKey, profileKey]);
 
   const toggle = (m: string) => {
     setMoods((prev) =>
