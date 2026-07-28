@@ -19,10 +19,12 @@ export default function DualChart({
   chart,
   transitPlanets,
   ranked,
+  altText,
 }: {
   chart: NatalChart;
   transitPlanets: TransitPlanet[];
   ranked: RankedSignals;
+  altText?: string;
 }) {
   const cx = 50;
   const cy = 50;
@@ -70,7 +72,15 @@ export default function DualChart({
   );
 
   return (
-    <svg viewBox="0 0 100 100" className="h-80 w-80 sm:h-96 sm:w-96" aria-hidden>
+    <svg
+      viewBox="0 0 100 100"
+      className="h-80 w-80 sm:h-96 sm:w-96"
+      role="img"
+      aria-label={
+        altText ??
+        "출생차트(안쪽)와 오늘의 트랜짓(바깥쪽)을 겹친 이중 천궁도"
+      }
+    >
       {/* 링 */}
       <circle cx={cx} cy={cy} r={R_OUT} fill="none" stroke={GOLD} strokeWidth="0.5" opacity="0.6" />
       <circle cx={cx} cy={cy} r={R_SIGN} fill="none" stroke={GOLD} strokeWidth="0.4" opacity="0.4" />

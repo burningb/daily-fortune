@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   generateReading,
   type BirthProfile,
@@ -10,16 +10,11 @@ import { CITIES } from "@/lib/cities";
 import { buildDaily, type DailyBundle } from "@/lib/daily";
 import Constellation from "@/app/components/Constellation";
 import DailyWeather from "@/app/components/DailyWeather";
+import JournalPanel from "@/app/components/JournalPanel";
+import ShareCard from "@/app/components/ShareCard";
 
-/* 금빛 별점 */
-function Stars({ n }: { n: number }) {
-  return (
-    <span className="text-gold" aria-label={`${n}점`}>
-      {"★".repeat(n)}
-      <span className="text-gold/20">{"★".repeat(5 - n)}</span>
-    </span>
-  );
-}
+const PROFILE_KEY = "bstoday.profile";
+
 
 /* 네 모서리 금빛 장식 */
 function Corners() {
@@ -62,6 +57,43 @@ export default function FortuneApp() {
   const [reading, setReading] = useState<Reading | null>(null);
   const [daily, setDaily] = useState<DailyBundle | null>(null);
   const [dateLabel, setDateLabel] = useState("");
+  const [dateKey, setDateKey] = useState("");
+  const [savedName, setSavedName] = useState<string | null>(null);
+
+  // 저장된 프로필 불러오기 (이 기기에만 저장)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(PROFILE_KEY);
+      if (!raw) return;
+      const p = JSON.parse(raw);
+      if (p.name) setName(p.name);
+      if (p.year) setYear(String(p.year));
+      if (p.month) setMonth(String(p.month));
+      if (p.day) setDay(String(p.day));
+      if (p.hour !== undefined && p.hour !== null) setHour(String(p.hour));
+      if (p.minute !== undefined) setMinute(String(p.minute));
+      if (p.cityIdx !== undefined) setCityIdx(String(p.cityIdx));
+      if (p.name) setSavedName(p.name);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const clearProfile = () => {
+    try {
+      localStorage.removeItem(PROFILE_KEY);
+    } catch {
+      /* ignore */
+    }
+    setSavedName(null);
+    setName("");
+    setYear("");
+    setMonth("");
+    setDay("");
+    setHour("unknown");
+    setMinute("0");
+    setCityIdx("0");
+  };
 
   const handleSubmit = () => {
     const y = Number(year);
@@ -88,12 +120,34 @@ export default function FortuneApp() {
       tz: knowsTime ? city.tz : undefined,
       cityName: knowsTime ? city.name : undefined,
     };
+    // 프로필을 이 기기에 저장 (재방문 시 자동 복원)
+    try {
+      localStorage.setItem(
+        PROFILE_KEY,
+        JSON.stringify({
+          name: name.trim(),
+          year: y,
+          month: m,
+          day: d,
+          hour,
+          minute,
+          cityIdx,
+        }),
+      );
+      setSavedName(name.trim());
+    } catch {
+      /* ignore */
+    }
+
     const now = new Date();
     const r = generateReading(profile, now);
     setReading(r);
     setDaily(r.chart ? buildDaily(r.chart, city.tz, now) : null);
     setDateLabel(
       `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일`,
+    );
+    setDateKey(
+      `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`,
     );
   };
 
@@ -114,15 +168,31 @@ export default function FortuneApp() {
           <h2 className="font-gowun mb-1 text-center text-xl text-[#f3e9d2]">
             나의 별을 알려주세요
           </h2>
-          <p className="font-gowun mb-6 text-center text-xs text-indigo-100/50">
+          <p className="font-gowun mb-4 text-center text-xs text-indigo-100/50">
             이름과 태어난 순간이 오늘의 나를 비춥니다
           </p>
+
+          {savedName && (
+            <div className="mb-5 flex items-center justify-between gap-2 rounded-lg border border-gold/20 bg-gold/5 px-3 py-2 font-gowun text-xs text-indigo-100/70">
+              <span>
+                <span className="text-gold">{savedName}</span> 님, 저장된 정보로 바로 볼 수 있어요.
+              </span>
+              <button
+                type="button"
+                onClick={clearProfile}
+                className="shrink-0 text-indigo-100/45 underline-offset-2 hover:text-rose-200/80 hover:underline"
+              >
+                정보 지우기
+              </button>
+            </div>
+          )}
 
           <label className={labelClass}>이름</label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="홍길동"
+            aria-label="이름 또는 닉네임"
             className={`${inputClass} mb-4`}
           />
 
@@ -133,6 +203,7 @@ export default function FortuneApp() {
               onChange={(e) => setYear(e.target.value)}
               inputMode="numeric"
               placeholder="1995"
+              aria-label="출생 연도"
               className={`${inputClass} text-center`}
             />
             <input
@@ -140,6 +211,7 @@ export default function FortuneApp() {
               onChange={(e) => setMonth(e.target.value)}
               inputMode="numeric"
               placeholder="월"
+              aria-label="출생 월"
               className={`${inputClass} text-center`}
             />
             <input
@@ -147,6 +219,7 @@ export default function FortuneApp() {
               onChange={(e) => setDay(e.target.value)}
               inputMode="numeric"
               placeholder="일"
+              aria-label="출생 일"
               className={`${inputClass} text-center`}
             />
           </div>
@@ -158,6 +231,7 @@ export default function FortuneApp() {
             <select
               value={hour}
               onChange={(e) => setHour(e.target.value)}
+              aria-label="태어난 시"
               className={inputClass}
             >
               <option value="unknown">모름</option>
@@ -171,6 +245,7 @@ export default function FortuneApp() {
               value={minute}
               onChange={(e) => setMinute(e.target.value)}
               disabled={hour === "unknown"}
+              aria-label="태어난 분"
               className={`${inputClass} disabled:opacity-40`}
             >
               {Array.from({ length: 60 }, (_, i) => (
@@ -188,6 +263,7 @@ export default function FortuneApp() {
             value={cityIdx}
             onChange={(e) => setCityIdx(e.target.value)}
             disabled={hour === "unknown"}
+            aria-label="출생 지역"
             className={`${inputClass} mb-2 disabled:opacity-40`}
           >
             <optgroup label="국내">
@@ -238,6 +314,7 @@ export default function FortuneApp() {
         <Constellation
           signKey={reading.sunSign.key}
           className="h-44 w-44 sm:h-52 sm:w-52"
+          label={`${reading.sunSign.name} 별자리 성좌 그림`}
         />
         <p className="font-gowun text-xs text-indigo-100/60">
           {reading.name} 님의 별
@@ -344,34 +421,6 @@ export default function FortuneApp() {
             ))}
           </div>
 
-          {/* 오늘의 흐름 */}
-          <SectionTitle>오늘의 흐름</SectionTitle>
-          <p className="font-gowun mb-7 rounded-lg border border-gold/15 bg-[#0c0a26]/40 p-4 text-center text-sm leading-loose text-indigo-50/90">
-            {reading.overallText}
-          </p>
-
-          {/* 오늘의 나, 영역별 기운 */}
-          <SectionTitle>오늘의 나, 영역별 기운</SectionTitle>
-          <div className="mb-7 flex flex-col gap-3.5">
-            {reading.categories.map((c) => (
-              <div key={c.label}>
-                <div className="mb-1 flex items-center justify-between font-gowun text-sm text-indigo-50/90">
-                  <span>{c.label}</span>
-                  <Stars n={c.stars} />
-                </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-[#0c0a26]/80 ring-1 ring-gold/10">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-gold/70 to-gold transition-all duration-1000"
-                    style={{ width: `${c.value}%` }}
-                  />
-                </div>
-                <p className="font-gowun mt-1.5 text-xs leading-relaxed text-indigo-100/55">
-                  {c.text}
-                </p>
-              </div>
-            ))}
-          </div>
-
           {/* 별의 조언 — 오늘의 태양·달과 나의 별자리(및 출생 달) 관계 */}
           <SectionTitle>별의 조언</SectionTitle>
           <div className="mb-7 flex flex-col gap-3 font-gowun">
@@ -409,29 +458,38 @@ export default function FortuneApp() {
             </div>
           </div>
 
-          {/* 행운 정보 */}
-          <SectionTitle>행운의 인연</SectionTitle>
-          <div className="grid grid-cols-2 gap-2 font-gowun text-sm text-indigo-50/90">
-            {[
-              `🎁 아이템 · ${reading.lucky.item}`,
-              `🎨 색 · ${reading.lucky.color}`,
-              `🔢 숫자 · ${reading.lucky.number}`,
-              `🧭 방향 · ${reading.lucky.direction}`,
-              `⏰ 시간 · ${reading.lucky.time}`,
-              `💞 궁합 · ${reading.compatibleSign}`,
-            ].map((t) => (
-              <div
-                key={t}
-                className="rounded-lg border border-gold/10 bg-[#0c0a26]/40 p-2.5"
-              >
-                {t}
-              </div>
-            ))}
-          </div>
-
           <p className="font-gowun mt-6 text-center text-[11px] text-indigo-100/40">
             ✦ 이 카드는 오늘 하루, 당신 곁에 머뭅니다 ✦
           </p>
+        </div>
+      </div>
+
+      {/* 저널 */}
+      <div className="tarot-frame w-[21rem] rounded-xl p-6 sm:w-[26rem]">
+        <div className="tarot-inline rounded-lg p-5 sm:p-6">
+          <SectionTitle>오늘의 기록</SectionTitle>
+          <JournalPanel
+            dateKey={dateKey}
+            question={
+              daily?.report.reflectionQuestion ??
+              "오늘 나는 무엇을 느끼고 있나요?"
+            }
+          />
+        </div>
+      </div>
+
+      {/* 공유 카드 */}
+      <div className="tarot-frame w-[21rem] rounded-xl p-6 sm:w-[26rem]">
+        <div className="tarot-inline rounded-lg p-5 sm:p-6">
+          <SectionTitle>오늘을 공유하기</SectionTitle>
+          <ShareCard
+            headline={daily?.report.headline ?? reading.starAdvice.sun.title}
+            question={
+              daily?.report.reflectionQuestion ??
+              "오늘 나는 무엇을 느끼고 있나요?"
+            }
+            dateLabel={dateLabel}
+          />
         </div>
       </div>
 

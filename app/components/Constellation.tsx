@@ -11,9 +11,11 @@ const CREAM = "#fff7e0";
 export default function Constellation({
   signKey,
   className,
+  label,
 }: {
   signKey: string;
   className?: string;
+  label?: string;
 }) {
   const data = CONSTELLATIONS[signKey];
   if (!data) return null;
@@ -22,7 +24,12 @@ export default function Constellation({
   const gid = `glow-${signKey}`;
 
   return (
-    <svg viewBox="0 0 100 100" className={className} aria-hidden>
+    <svg
+      viewBox="0 0 100 100"
+      className={className}
+      role="img"
+      aria-label={label ?? "별자리 성좌 그림"}
+    >
       <defs>
         <filter id={gid} x="-60%" y="-60%" width="220%" height="220%">
           <feGaussianBlur stdDeviation="1.3" result="b" />

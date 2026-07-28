@@ -16,7 +16,13 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 // 중립적 감각 스펙트럼(새벽 청색 → 금빛). 좋음/나쁨 색이 아님.
 function Meter({ label, score, note }: { label: string; score: number; note: string }) {
   return (
-    <div>
+    <div
+      role="meter"
+      aria-valuenow={score}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={`${label} ${score}점 · ${note}`}
+    >
       <div className="mb-1 flex items-baseline justify-between font-gowun text-sm">
         <span className="text-indigo-50/90">{label}</span>
         <span className="font-serif text-gold/90">{score}</span>
@@ -27,7 +33,9 @@ function Meter({ label, score, note }: { label: string; score: number; note: str
           style={{ width: `${score}%` }}
         />
       </div>
-      <p className="font-gowun mt-1 text-[11px] text-indigo-100/55">{note}</p>
+      <p className="font-gowun mt-1 text-[11px] text-indigo-100/55" aria-hidden>
+        {note}
+      </p>
     </div>
   );
 }
@@ -67,7 +75,14 @@ export default function DailyWeather({
       {/* 이중 차트 */}
       <SectionTitle>출생 × 오늘의 하늘</SectionTitle>
       <div className="flex justify-center">
-        <DualChart chart={chart} transitPlanets={daily.transitPlanets} ranked={daily.ranked} />
+        <DualChart
+          chart={chart}
+          transitPlanets={daily.transitPlanets}
+          ranked={daily.ranked}
+          altText={`출생차트(안쪽 원)와 오늘의 트랜짓(바깥쪽 원)을 겹친 이중 천궁도. 오늘의 핵심 신호: ${
+            r.mainSignal ? `${r.mainSignal.title} (${r.mainSignal.evidence})` : "두드러진 신호 없음"
+          }`}
+        />
       </div>
       <p className="mb-2 text-center text-[11px] text-indigo-100/40">
         안쪽 = 출생차트 · 바깥쪽 = 오늘의 트랜짓 · 선 = 핵심 접점
