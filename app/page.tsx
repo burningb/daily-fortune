@@ -3,8 +3,11 @@ import FortuneApp from "@/app/components/FortuneApp";
 export default function Home() {
   return (
     <main className="night-sky flex min-h-screen flex-col items-center justify-center gap-10 overflow-hidden px-4 py-20">
-      {/* 밤하늘 별과 달빛 */}
-      <div className="stars" aria-hidden />
+      {/* 깊이감 있는 밤하늘: 떠다니는 성운 + 원경/근경 별밭 + 달빛 */}
+      <div className="nebula nebula-1" aria-hidden />
+      <div className="nebula nebula-2" aria-hidden />
+      <div className="starfield layer-far" aria-hidden />
+      <div className="starfield layer-near" aria-hidden />
       <div className="moon-glow" aria-hidden />
 
       <header className="animate-rise text-center">
@@ -26,6 +29,25 @@ export default function Home() {
       </header>
 
       <FortuneApp />
+
+      {/* 크레딧 */}
+      <footer className="relative mt-4 flex flex-col items-center gap-1 pb-2 text-center">
+        <span className="h-px w-16 bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
+        <p className="font-serif mt-3 text-[10px] tracking-[0.4em] text-gold/50">
+          CREDIT
+        </p>
+        <p className="font-gowun text-sm tracking-[0.15em] text-indigo-50/80">
+          KIM KYUNG MIN
+        </p>
+        <a
+          href="https://www.instagram.com/burning_bunnies/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-gowun text-xs text-gold/70 underline-offset-4 transition hover:text-gold hover:underline"
+        >
+          @burning_bunnies
+        </a>
+      </footer>
     </main>
   );
 }

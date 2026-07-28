@@ -37,12 +37,10 @@ body {
     linear-gradient(180deg, var(--night-1) 0%, var(--night-0) 55%, #030210 100%);
 }
 
-/* 별: 두 겹의 미세한 점들 + 반짝임 */
-.stars,
-.stars::after {
-  content: "";
+/* 별밭: 원경/근경 두 겹이 서로 다른 속도로 흘러 깊이(패럴랙스)를 만든다 */
+.starfield {
   position: absolute;
-  inset: -50%;
+  inset: -30%;
   z-index: -1;
   background-image:
     radial-gradient(1.5px 1.5px at 20% 30%, #fff, transparent),
@@ -56,19 +54,79 @@ body {
     radial-gradient(1px 1px at 30% 55%, #fff, transparent),
     radial-gradient(1.5px 1.5px at 65% 80%, #fff, transparent);
   background-repeat: repeat;
-  background-size: 420px 420px;
-  animation: twinkle 5s ease-in-out infinite;
+  will-change: transform, opacity;
 }
-.stars::after {
-  background-size: 300px 300px;
-  opacity: 0.6;
-  animation-delay: 2.5s;
-  animation-duration: 7s;
+/* 원경(작고 느리고 흐릿) */
+.layer-far {
+  background-size: 340px 340px;
+  opacity: 0.5;
+  animation: twinkle 6s ease-in-out infinite, drift-far 160s linear infinite;
+}
+/* 근경(크고 빠르고 밝음) */
+.layer-near {
+  background-size: 220px 220px;
+  opacity: 0.85;
+  animation: twinkle 4s ease-in-out infinite 1s, drift-near 100s linear infinite;
 }
 
 @keyframes twinkle {
-  0%, 100% { opacity: 0.35; }
+  0%, 100% { opacity: 0.4; }
   50% { opacity: 0.9; }
+}
+/* background-size 배수만큼 이동해 이음매 없이 순환 */
+@keyframes drift-far {
+  to { transform: translate3d(-340px, -340px, 0); }
+}
+@keyframes drift-near {
+  to { transform: translate3d(-220px, -220px, 0); }
+}
+
+/* 떠다니는 성운 — 느리게 커졌다 작아지며 깊이를 더한다 */
+.nebula {
+  position: absolute;
+  z-index: -1;
+  border-radius: 9999px;
+  filter: blur(70px);
+  will-change: transform;
+  pointer-events: none;
+}
+.nebula-1 {
+  left: -12%;
+  top: 2%;
+  width: 34rem;
+  height: 34rem;
+  background: radial-gradient(circle, rgba(120, 96, 220, 0.5), transparent 70%);
+  opacity: 0.55;
+  animation: float-a 26s ease-in-out infinite;
+}
+.nebula-2 {
+  right: -10%;
+  bottom: -6%;
+  width: 30rem;
+  height: 30rem;
+  background: radial-gradient(circle, rgba(64, 90, 200, 0.45), transparent 70%);
+  opacity: 0.5;
+  animation: float-b 34s ease-in-out infinite;
+}
+
+@keyframes float-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(44px, 34px, 0) scale(1.14); }
+}
+@keyframes float-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-52px, -26px, 0) scale(1.1); }
+}
+
+/* 성좌 별 반짝임 */
+.cst-star {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cst-twinkle 3.4s ease-in-out infinite;
+}
+@keyframes cst-twinkle {
+  0%, 100% { opacity: 0.6; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1.06); }
 }
 
 /* 달빛 */
@@ -146,7 +204,8 @@ body {
 .animate-rise { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 
 @media (prefers-reduced-motion: reduce) {
-  .stars, .stars::after, .moon-glow, .gold-shimmer, .animate-rise {
+  .starfield, .layer-far, .layer-near, .nebula, .cst-star,
+  .moon-glow, .gold-shimmer, .animate-rise {
     animation: none;
   }
 }

@@ -2,7 +2,7 @@
 // 각 별은 적경(ra, degree)·적위(dec, degree)·겉보기 등급(mag)을 가지며,
 // projectConstellation()이 이를 카드 안 2D 좌표로 정확히 투영한다.
 
-export type Star = { ra: number; dec: number; mag: number };
+export type Star = { ra: number; dec: number; mag: number; name?: string };
 
 export type Constellation = {
   stars: Star[];
@@ -13,7 +13,7 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
   // 양자리
   aries: {
     stars: [
-      { ra: 31.793, dec: 23.462, mag: 2.01 }, // 0 Hamal
+      { ra: 31.793, dec: 23.462, mag: 2.01, name: "Hamal" }, // 0 Hamal
       { ra: 28.66, dec: 20.808, mag: 2.64 }, // 1 Sheratan
       { ra: 28.383, dec: 19.294, mag: 3.88 }, // 2 Mesarthim
       { ra: 42.671, dec: 27.261, mag: 3.61 }, // 3 Bharani
@@ -28,8 +28,8 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
   // 황소자리
   taurus: {
     stars: [
-      { ra: 68.98, dec: 16.509, mag: 0.85 }, // 0 Aldebaran
-      { ra: 81.573, dec: 28.607, mag: 1.65 }, // 1 Elnath
+      { ra: 68.98, dec: 16.509, mag: 0.85, name: "Aldebaran" }, // 0 Aldebaran
+      { ra: 81.573, dec: 28.607, mag: 1.65, name: "Elnath" }, // 1 Elnath
       { ra: 84.411, dec: 21.143, mag: 3.0 }, // 2 ζ Tau
       { ra: 64.948, dec: 15.628, mag: 3.65 }, // 3 γ Tau
       { ra: 65.734, dec: 17.542, mag: 3.76 }, // 4 δ Tau
@@ -49,9 +49,9 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
   // 쌍둥이자리
   gemini: {
     stars: [
-      { ra: 113.65, dec: 31.888, mag: 1.58 }, // 0 Castor
-      { ra: 116.329, dec: 28.026, mag: 1.16 }, // 1 Pollux
-      { ra: 99.428, dec: 16.399, mag: 1.93 }, // 2 Alhena
+      { ra: 113.65, dec: 31.888, mag: 1.58, name: "Castor" }, // 0 Castor
+      { ra: 116.329, dec: 28.026, mag: 1.16, name: "Pollux" }, // 1 Pollux
+      { ra: 99.428, dec: 16.399, mag: 1.93, name: "Alhena" }, // 2 Alhena
       { ra: 95.74, dec: 22.514, mag: 2.87 }, // 3 μ Tejat
       { ra: 100.983, dec: 25.131, mag: 2.98 }, // 4 ε Mebsuta
       { ra: 106.027, dec: 20.57, mag: 3.9 }, // 5 ζ Mekbuda
@@ -76,7 +76,7 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
   // 게자리
   cancer: {
     stars: [
-      { ra: 124.129, dec: 9.186, mag: 3.5 }, // 0 β Tarf
+      { ra: 124.129, dec: 9.186, mag: 3.5, name: "Tarf" }, // 0 β Tarf
       { ra: 131.171, dec: 18.154, mag: 3.94 }, // 1 δ Asellus Aus.
       { ra: 130.821, dec: 21.469, mag: 4.66 }, // 2 γ Asellus Bor.
       { ra: 131.674, dec: 28.76, mag: 4.02 }, // 3 ι Cnc
@@ -93,9 +93,9 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
   // 사자자리
   leo: {
     stars: [
-      { ra: 152.093, dec: 11.967, mag: 1.36 }, // 0 Regulus
-      { ra: 177.265, dec: 14.572, mag: 2.14 }, // 1 Denebola
-      { ra: 154.993, dec: 19.842, mag: 2.08 }, // 2 Algieba
+      { ra: 152.093, dec: 11.967, mag: 1.36, name: "Regulus" }, // 0 Regulus
+      { ra: 177.265, dec: 14.572, mag: 2.14, name: "Denebola" }, // 1 Denebola
+      { ra: 154.993, dec: 19.842, mag: 2.08, name: "Algieba" }, // 2 Algieba
       { ra: 168.527, dec: 20.524, mag: 2.56 }, // 3 Zosma
       { ra: 146.463, dec: 23.774, mag: 2.98 }, // 4 ε Ras Elased
       { ra: 167.416, dec: 15.43, mag: 3.32 }, // 5 θ Chertan
@@ -119,7 +119,7 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
   // 처녀자리
   virgo: {
     stars: [
-      { ra: 201.298, dec: -11.161, mag: 0.98 }, // 0 Spica
+      { ra: 201.298, dec: -11.161, mag: 0.98, name: "Spica" }, // 0 Spica
       { ra: 177.674, dec: 1.765, mag: 3.6 }, // 1 β Zavijava
       { ra: 190.415, dec: -1.449, mag: 2.74 }, // 2 γ Porrima
       { ra: 193.901, dec: 3.398, mag: 3.39 }, // 3 δ Auva
@@ -143,7 +143,7 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
   libra: {
     stars: [
       { ra: 222.72, dec: -16.042, mag: 2.75 }, // 0 Zubenelgenubi
-      { ra: 229.252, dec: -9.383, mag: 2.61 }, // 1 Zubeneschamali
+      { ra: 229.252, dec: -9.383, mag: 2.61, name: "Zubeneschamali" }, // 1 Zubeneschamali
       { ra: 233.881, dec: -14.789, mag: 3.91 }, // 2 Zubenelakrab
       { ra: 226.017, dec: -25.281, mag: 3.29 }, // 3 σ Brachium
     ],
@@ -158,7 +158,7 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
   // 전갈자리
   scorpio: {
     stars: [
-      { ra: 247.352, dec: -26.432, mag: 1.06 }, // 0 Antares
+      { ra: 247.352, dec: -26.432, mag: 1.06, name: "Antares" }, // 0 Antares
       { ra: 241.359, dec: -19.805, mag: 2.6 }, // 1 β Graffias
       { ra: 240.083, dec: -22.622, mag: 2.29 }, // 2 δ Dschubba
       { ra: 239.713, dec: -26.114, mag: 2.89 }, // 3 π Sco
@@ -171,7 +171,7 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
       { ra: 264.33, dec: -42.998, mag: 1.86 }, // 10 θ Sargas
       { ra: 266.896, dec: -40.127, mag: 3.03 }, // 11 ι Sco
       { ra: 265.622, dec: -39.03, mag: 2.39 }, // 12 κ Sco
-      { ra: 263.402, dec: -37.104, mag: 1.62 }, // 13 λ Shaula
+      { ra: 263.402, dec: -37.104, mag: 1.62, name: "Shaula" }, // 13 λ Shaula
       { ra: 262.691, dec: -37.296, mag: 2.7 }, // 14 υ Lesath
     ],
     lines: [
@@ -196,11 +196,11 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
   sagittarius: {
     stars: [
       { ra: 271.452, dec: -30.424, mag: 2.98 }, // 0 γ Alnasl
-      { ra: 276.043, dec: -34.385, mag: 1.79 }, // 1 ε Kaus Australis
+      { ra: 276.043, dec: -34.385, mag: 1.79, name: "Kaus Australis" }, // 1 ε Kaus Australis
       { ra: 275.248, dec: -29.828, mag: 2.7 }, // 2 δ Kaus Media
       { ra: 276.993, dec: -25.421, mag: 2.81 }, // 3 λ Kaus Borealis
       { ra: 281.414, dec: -26.99, mag: 3.17 }, // 4 φ Sgr
-      { ra: 283.816, dec: -26.297, mag: 2.05 }, // 5 σ Nunki
+      { ra: 283.816, dec: -26.297, mag: 2.05, name: "Nunki" }, // 5 σ Nunki
       { ra: 286.171, dec: -27.67, mag: 3.32 }, // 6 τ Sgr
       { ra: 285.653, dec: -29.88, mag: 2.6 }, // 7 ζ Ascella
     ],
@@ -224,7 +224,7 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
       { ra: 305.253, dec: -14.781, mag: 3.05 }, // 1 β Dabih
       { ra: 311.523, dec: -25.271, mag: 4.13 }, // 2 ψ Cap
       { ra: 312.955, dec: -26.919, mag: 4.11 }, // 3 ω Cap
-      { ra: 326.76, dec: -16.127, mag: 2.85 }, // 4 δ Deneb Algedi
+      { ra: 326.76, dec: -16.127, mag: 2.85, name: "Deneb Algedi" }, // 4 δ Deneb Algedi
       { ra: 325.023, dec: -16.662, mag: 3.69 }, // 5 γ Nashira
       { ra: 321.667, dec: -22.411, mag: 3.74 }, // 6 ζ Cap
       { ra: 316.487, dec: -17.233, mag: 4.07 }, // 7 θ Cap
@@ -244,7 +244,7 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
   // 물병자리
   aquarius: {
     stars: [
-      { ra: 322.89, dec: -5.571, mag: 2.9 }, // 0 β Sadalsuud
+      { ra: 322.89, dec: -5.571, mag: 2.9, name: "Sadalsuud" }, // 0 β Sadalsuud
       { ra: 331.446, dec: -0.32, mag: 2.95 }, // 1 α Sadalmelik
       { ra: 335.414, dec: -1.387, mag: 3.85 }, // 2 γ Sadachbia
       { ra: 337.208, dec: -0.019, mag: 3.65 }, // 3 ζ Aqr
@@ -267,7 +267,7 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
   // 물고기자리 (적경 0h를 넘는 별자리 — 투영에서 wrap 처리)
   pisces: {
     stars: [
-      { ra: 30.512, dec: 2.764, mag: 3.82 }, // 0 α Alrescha (매듭)
+      { ra: 30.512, dec: 2.764, mag: 3.82, name: "Alrescha" }, // 0 α Alrescha (매듭)
       { ra: 22.871, dec: 15.346, mag: 3.62 }, // 1 η Alpherg (북쪽 물고기)
       { ra: 349.29, dec: 3.282, mag: 3.7 }, // 2 γ Psc
       { ra: 5.535, dec: 6.863, mag: 4.03 }, // 3 ω Psc
@@ -293,7 +293,7 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
   },
 };
 
-export type ProjectedPoint = { x: number; y: number; mag: number };
+export type ProjectedPoint = { x: number; y: number; mag: number; name?: string };
 
 // 실제 적경·적위를 카드 안(0~100) 좌표로 투영. 형태 왜곡이 없도록 등비 스케일.
 export function projectConstellation(
@@ -329,6 +329,7 @@ export function projectConstellation(
     x: xs[i] * scale + offX,
     y: ys[i] * scale + offY,
     mag: s.mag,
+    name: s.name,
   }));
 
   return { points, lines: c.lines };
