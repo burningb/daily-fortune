@@ -19,7 +19,7 @@ function fmtCountdown(ms: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }
 
-const EXTS = ["jpg", "png", "webp", "jpeg"];
+const EXTS = ["png", "jpg", "webp", "jpeg"];
 
 export default function TarotDraw({ dateKey }: { dateKey: string }) {
   const [card, setCard] = useState<TarotCard | null>(null);
@@ -93,7 +93,7 @@ export default function TarotDraw({ dateKey }: { dateKey: string }) {
           className={`block ${lockedToday ? "cursor-default" : "cursor-pointer"}`}
         >
           <div
-            className={`relative w-44 select-none transition-transform duration-[600ms] [aspect-ratio:2/3] [transform-style:preserve-3d] ${
+            className={`relative w-64 select-none transition-transform duration-[600ms] [aspect-ratio:2/3] [transform-style:preserve-3d] sm:w-72 ${
               flipped ? "[transform:rotateY(180deg)]" : ""
             }`}
           >
