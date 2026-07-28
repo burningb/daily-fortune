@@ -55,11 +55,12 @@ export type Reading = {
 export type LuminaryAdvice = {
   transitSignName: string;
   relationLabel: string; // 겹침/조화/긴장/균형/조정/전환
+  title: string;
   text: string;
 };
 export type StarAdvice = {
   sun: LuminaryAdvice;
-  moon: LuminaryAdvice & { phase: string };
+  moon: LuminaryAdvice & { phase: string; reference: string };
 };
 
 // ── 12 별자리 정의 (양자리부터 순서대로) ──────────────────────────
@@ -503,44 +504,80 @@ const DIRECTIONS = ["동쪽", "서쪽", "남쪽", "북쪽", "남동쪽", "남서
 const TIMES = ["이른 아침", "오전 9~11시", "정오 무렵", "오후 2~4시", "해 질 무렵", "저녁 7~9시"];
 const KEYWORDS = ["용기", "균형", "설렘", "집중", "여유", "성장", "연결", "직관", "정리", "도약", "회복", "표현"];
 
-// ── 별의 조언: 오늘의 태양·달과 사용자 별자리의 관계 ────────────────
-// 두 별자리 사이 거리(사인 애스펙트)로 관계의 성격을 판정 (모던 점성학, 정도 불필요)
-type Relation = { label: string; sun: string; moon: string };
+// ── 별의 조언: 오늘의 태양·달과 사용자 별자리(및 출생 달)의 관계 ──────
+// 두 별자리 사이 거리(사인 애스펙트)로 관계의 성격을 판정 (모던 점성학).
+// 본문의 {ref}는 기준점(태양 별자리 / 출생 달)으로 치환된다.
+type Relation = {
+  label: string;
+  sunTitle: string;
+  sunBody: string;
+  moonTitle: string;
+  moonBody: string;
+};
+
 const RELATIONS: Relation[] = [
   {
     label: "겹침",
-    sun: "오늘의 태양이 당신의 별자리와 겹쳐, 정체성과 활력이 또렷해지는 날입니다. 미루던 나를 위한 일에 에너지를 써보세요.",
-    moon: "오늘의 달이 당신의 별자리와 겹쳐, 감정이 평소보다 크게 느껴질 수 있어요. 마음의 신호를 억누르기보다 알아차려 보세요.",
+    sunTitle: "정체성이 또렷해지는 날",
+    sunBody:
+      "오늘의 태양이 {ref}와 겹칩니다. 나의 존재감과 활력이 앞으로 나오는 시기라, 남의 기대보다 내가 정말 원하는 방향에 에너지를 모으기 좋아요. 다만 시야가 나에게만 쏠리지 않도록 한 번쯤 주위를 둘러보세요.",
+    moonTitle: "감정이 크게 차오르는 날",
+    moonBody:
+      "오늘의 달이 {ref}와 겹쳐, 감정의 진폭이 평소보다 커질 수 있어요. 기분을 억누르기보다 ‘지금 나는 무엇을 느끼는가’를 그대로 알아차리면, 그 감정이 오늘의 좋은 나침반이 됩니다.",
   },
   {
     label: "전환",
-    sun: "오늘의 태양이 당신의 별자리 곁을 지나며, 흐름이 다음 단계로 넘어가는 날입니다. 서두르지 말고 나의 리듬을 살펴보세요.",
-    moon: "오늘의 달이 당신의 별자리 곁을 지나며, 감정의 결이 바뀌어가는 날입니다. 지금의 기분을 가볍게 적어보세요.",
+    sunTitle: "다음 국면으로 넘어가는 날",
+    sunBody:
+      "오늘의 태양이 {ref} 바로 옆을 지나며, 한 흐름이 마무리되고 다음 단계로 넘어갑니다. 큰 결단을 내리기보다 지금까지의 리듬을 점검하고 작은 준비를 해두기 좋은 날입니다.",
+    moonTitle: "마음의 결이 바뀌는 날",
+    moonBody:
+      "오늘의 달이 {ref} 곁을 지나 감정의 결이 서서히 바뀝니다. 어제와 기분이 달라도 이상한 게 아니에요. 지금의 기분을 한 줄로 적어두면 변화를 한결 부드럽게 넘어갈 수 있습니다.",
   },
   {
     label: "조화",
-    sun: "오늘의 태양이 당신의 별자리와 부드럽게 어울려, 자연스럽게 자신감이 실리는 날입니다. 하고 싶던 일을 가볍게 시작해보세요.",
-    moon: "오늘의 달이 당신의 별자리와 편안히 어울려, 감정이 비교적 안정적으로 흐르는 날입니다. 마음이 이끄는 쪽에 귀 기울여보세요.",
+    sunTitle: "기회가 가볍게 열리는 날",
+    sunBody:
+      "오늘의 태양이 {ref}와 우호적인 각을 이루어, 크게 애쓰지 않아도 흐름이 열립니다. 미뤄둔 일에 첫걸음을 떼거나 새로운 제안을 건네기 좋은 타이밍이에요.",
+    moonTitle: "마음이 여유로운 날",
+    moonBody:
+      "오늘의 달이 {ref}와 편안히 어울려 감정이 비교적 잔잔합니다. 이 안정감을 회복과 관계에 써보세요. 먼저 안부를 건네는 작은 행동이 오늘따라 잘 통합니다.",
   },
   {
     label: "긴장",
-    sun: "오늘의 태양이 당신의 별자리와 각을 세워, 의욕과 현실 사이에 약간의 마찰이 느껴질 수 있어요. 무리한 증명보다 우선순위를 정해보세요.",
-    moon: "오늘의 달이 당신의 별자리와 각을 이루어, 감정이 예민해지기 쉬운 날입니다. 반응하기 전에 한 박자 쉬어보세요.",
+    sunTitle: "의욕과 현실이 부딪히는 날",
+    sunBody:
+      "오늘의 태양이 {ref}와 각을 세워, 하고 싶은 것과 해야 하는 것 사이에 마찰이 생길 수 있어요. 이 긴장은 방향이 틀렸다는 신호가 아니라 우선순위를 다시 정하라는 신호입니다. 한 번에 다 하려 하기보다 하나를 골라보세요.",
+    moonTitle: "감정이 예민해지는 날",
+    moonBody:
+      "오늘의 달이 {ref}와 각을 이루어 마음이 쉽게 출렁일 수 있어요. 반응하기 전에 한 박자 쉬는 것만으로 후회할 말이 줄어듭니다. 몸의 긴장부터 풀어주면 감정도 함께 가라앉습니다.",
   },
   {
     label: "조화",
-    sun: "오늘의 태양이 당신의 별자리와 조화로운 각을 이루어, 흐름이 순조롭게 열리는 날입니다. 익숙한 강점을 믿고 나아가 보세요.",
-    moon: "오늘의 달이 당신의 별자리와 조화로운 각을 이루어, 마음이 한결 여유로운 날입니다. 편안함을 회복에 써보세요.",
+    sunTitle: "흐름이 순조로운 날",
+    sunBody:
+      "오늘의 태양이 {ref}와 조화로운 각을 이루어, 익숙한 강점이 자연스럽게 발휘됩니다. 무리한 도전보다 내가 잘하는 방식으로 나아갈 때 성과와 만족이 함께 옵니다.",
+    moonTitle: "마음이 편안한 날",
+    moonBody:
+      "오늘의 달이 {ref}와 부드럽게 이어져 감정이 안정적으로 흐릅니다. 마음이 이끄는 쪽을 신뢰해도 좋은 날이에요. 좋아하는 감각(음악·산책·차 한 잔)으로 하루를 채워보세요.",
   },
   {
     label: "조정",
-    sun: "오늘의 태양이 당신의 별자리와 어긋난 각을 이루어, 작은 조율이 필요한 날입니다. 완벽함보다 조정에 마음을 두세요.",
-    moon: "오늘의 달이 당신의 별자리와 어긋나, 마음이 조금 어수선할 수 있어요. 억지로 정리하기보다 그대로 기록해보세요.",
+    sunTitle: "작은 조율이 필요한 날",
+    sunBody:
+      "오늘의 태양이 {ref}와 어긋난 각을 이루어, 계획과 상황이 살짝 어긋날 수 있어요. 완벽하게 맞추려 하기보다 그때그때 조정하는 유연함이 오늘의 열쇠입니다.",
+    moonTitle: "마음이 어수선한 날",
+    moonBody:
+      "오늘의 달이 {ref}와 어긋나 감정이 정리되지 않은 채 남을 수 있어요. 억지로 결론짓기보다 ‘아직 잘 모르겠다’를 허용해보세요. 기록만 해두어도 마음이 한결 가벼워집니다.",
   },
   {
     label: "균형",
-    sun: "오늘의 태양이 당신의 별자리 맞은편에서 비추어, 나와 타인의 균형을 돌아보게 하는 날입니다. 관계 속에서 나의 자리를 확인해보세요.",
-    moon: "오늘의 달이 당신의 별자리 맞은편에 떠, 타인의 감정에 마음이 크게 움직일 수 있어요. 나의 감정과 상대의 감정을 구분해보세요.",
+    sunTitle: "나와 타인의 균형을 보는 날",
+    sunBody:
+      "오늘의 태양이 {ref} 맞은편에서 비추어, 관계와 상황을 통해 나를 비춰봅니다. 상대에게 맞추기만 하거나 나만 내세우기보다, 두 필요 사이의 가운데 지점을 찾아보세요.",
+    moonTitle: "타인의 감정에 크게 움직이는 날",
+    moonBody:
+      "오늘의 달이 {ref} 맞은편에 떠, 타인의 기분이 내 마음처럼 느껴질 수 있어요. 공감은 강점이지만, 지금 이 감정이 ‘나의 것’인지 ‘상대의 것’인지 한 번 구분해보면 덜 지칩니다.",
   },
 ];
 
@@ -565,8 +602,13 @@ function moonPhaseName(sunLon: number, moonLon: number): string {
   return STAR_MOON_PHASES[Math.floor(((elong + 22.5) % 360) / 45)];
 }
 
-// 별의 조언 생성 — 태양 별자리만 알면 항상 계산 가능
-function buildStarAdvice(natalSunIndex: number, today: Date, tz: number): StarAdvice {
+// 별의 조언 생성. natalMoonIndex가 있으면(출생 시각 입력) 달 조언을 '출생 달' 기준으로 정밀 계산.
+function buildStarAdvice(
+  natalSunIndex: number,
+  natalMoonIndex: number | null,
+  today: Date,
+  tz: number,
+): StarAdvice {
   const bodies = computeBodies(
     today.getFullYear(),
     today.getMonth() + 1,
@@ -575,19 +617,32 @@ function buildStarAdvice(natalSunIndex: number, today: Date, tz: number): StarAd
   );
   const tSun = Math.floor(bodies.sun / 30) % 12;
   const tMoon = Math.floor(bodies.moon / 30) % 12;
+
   const sunRel = signRelation(natalSunIndex, tSun);
-  const moonRel = signRelation(natalSunIndex, tMoon);
+
+  const moonRefIndex = natalMoonIndex ?? natalSunIndex;
+  const moonRel = signRelation(moonRefIndex, tMoon);
+  const moonPrecise = natalMoonIndex !== null;
+  const moonRefText = moonPrecise
+    ? `당신의 출생 달(${SIGNS[natalMoonIndex].name})`
+    : "당신의 별자리";
+
   return {
     sun: {
       transitSignName: SIGNS[tSun].name,
       relationLabel: sunRel.label,
-      text: sunRel.sun,
+      title: sunRel.sunTitle,
+      text: sunRel.sunBody.replace("{ref}", "당신의 별자리"),
     },
     moon: {
       transitSignName: SIGNS[tMoon].name,
       relationLabel: moonRel.label,
-      text: moonRel.moon,
+      title: moonRel.moonTitle,
+      text: moonRel.moonBody.replace("{ref}", moonRefText),
       phase: moonPhaseName(bodies.sun, bodies.moon),
+      reference: moonPrecise
+        ? `출생 달 · ${SIGNS[natalMoonIndex].name} 기준`
+        : "태양 별자리 기준",
     },
   };
 }
@@ -721,6 +776,11 @@ export function generateReading(profile: BirthProfile, today: Date): Reading {
     },
     starAdvice: buildStarAdvice(
       SIGNS.findIndex((s) => s.key === sunSign.key),
+      chart
+        ? Math.floor(
+            (chart.planets.find((p) => p.key === "moon")?.lon ?? 0) / 30,
+          ) % 12
+        : null,
       today,
       profile.tz ?? 9,
     ),

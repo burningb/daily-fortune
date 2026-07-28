@@ -3,25 +3,13 @@
 import { useState } from "react";
 import {
   generateReading,
-  SIGNS,
   type BirthProfile,
   type Reading,
 } from "@/lib/astrology";
 import { CITIES } from "@/lib/cities";
 import { buildDaily, type DailyBundle } from "@/lib/daily";
 import Constellation from "@/app/components/Constellation";
-import NatalChart from "@/app/components/NatalChart";
 import DailyWeather from "@/app/components/DailyWeather";
-
-const ROMAN = [
-  "I", "II", "III", "IV", "V", "VI",
-  "VII", "VIII", "IX", "X", "XI", "XII",
-];
-
-function romanFor(signKey: string) {
-  const i = SIGNS.findIndex((s) => s.key === signKey);
-  return i >= 0 ? ROMAN[i] : "";
-}
 
 /* 금빛 별점 */
 function Stars({ n }: { n: number }) {
@@ -74,7 +62,6 @@ export default function FortuneApp() {
   const [reading, setReading] = useState<Reading | null>(null);
   const [daily, setDaily] = useState<DailyBundle | null>(null);
   const [dateLabel, setDateLabel] = useState("");
-  const [flipped, setFlipped] = useState(false);
 
   const handleSubmit = () => {
     const y = Number(year);
@@ -108,11 +95,9 @@ export default function FortuneApp() {
     setDateLabel(
       `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일`,
     );
-    setFlipped(true);
   };
 
   const handleReset = () => {
-    setFlipped(false);
     setReading(null);
     setDaily(null);
   };
@@ -248,57 +233,24 @@ export default function FortuneApp() {
   // ── 결과 화면 ────────────────────────────────────────────────
   return (
     <div className="animate-rise flex flex-col items-center gap-9">
-      {/* 뒤집히는 타로 카드 */}
-      <div className="[perspective:1400px]">
-        <div
-          className={`relative h-[26rem] w-64 select-none transition-transform duration-[900ms] [transform-style:preserve-3d] sm:h-[28rem] sm:w-72 ${
-            flipped ? "[transform:rotateY(180deg)]" : ""
-          }`}
-        >
-          {/* Front (카드 뒷면 문양) */}
-          <div className="tarot-frame absolute inset-0 rounded-xl p-4 [backface-visibility:hidden]">
-            <Corners />
-            <div className="tarot-inline flex h-full w-full flex-col items-center justify-center gap-4 rounded-lg">
-              <span className="text-5xl text-gold">☾</span>
-              <span className="font-serif text-xs tracking-[0.4em] text-gold/70">
-                ORACULUM
-              </span>
-              <span className="text-3xl text-gold/80">✦</span>
-            </div>
-          </div>
-
-          {/* Back (별자리 아르카나) */}
-          <div className="tarot-frame absolute inset-0 rounded-xl p-4 [backface-visibility:hidden] [transform:rotateY(180deg)]">
-            <Corners />
-            <div className="tarot-inline flex h-full w-full flex-col items-center justify-between rounded-lg py-6">
-              <span className="font-serif text-sm tracking-[0.3em] text-gold/80">
-                {romanFor(reading.sunSign.key)}
-              </span>
-
-              <div className="flex flex-col items-center gap-2">
-                <Constellation
-                  signKey={reading.sunSign.key}
-                  className="h-40 w-40 sm:h-44 sm:w-44"
-                />
-                <span className="font-gowun text-xs text-indigo-100/60">
-                  {reading.name} 님의 별
-                </span>
-              </div>
-
-              <div className="flex flex-col items-center gap-2 px-3 text-center">
-                <span className="font-gowun text-xl tracking-wide text-gold">
-                  {reading.sunSign.name}
-                </span>
-                <span className="font-gowun text-xs text-indigo-100/60">
-                  {reading.themeLine}
-                </span>
-                <span className="mt-1 rounded-full border border-gold/30 px-3 py-1 font-gowun text-xs text-indigo-100/80">
-                  오늘의 키워드 · {reading.keyword}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* 나의 별자리 (카드 없이 열린 레이아웃) */}
+      <div className="flex flex-col items-center gap-2 text-center">
+        <Constellation
+          signKey={reading.sunSign.key}
+          className="h-44 w-44 sm:h-52 sm:w-52"
+        />
+        <p className="font-gowun text-xs text-indigo-100/60">
+          {reading.name} 님의 별
+        </p>
+        <h2 className="font-gowun text-2xl tracking-wide text-gold">
+          {reading.sunSign.name}
+        </h2>
+        <p className="font-gowun text-sm text-indigo-100/70">
+          {reading.themeLine}
+        </p>
+        <span className="mt-1 rounded-full border border-gold/30 px-4 py-1 font-gowun text-xs text-indigo-100/80">
+          오늘의 키워드 · {reading.keyword}
+        </span>
       </div>
 
       {/* 오늘의 날씨 (출생 시각·지역 입력 시) */}
@@ -420,32 +372,39 @@ export default function FortuneApp() {
             ))}
           </div>
 
-          {/* 별의 조언 — 오늘의 태양·달과 나의 별자리 관계 */}
+          {/* 별의 조언 — 오늘의 태양·달과 나의 별자리(및 출생 달) 관계 */}
           <SectionTitle>별의 조언</SectionTitle>
-          <div className="mb-7 flex flex-col gap-2 font-gowun text-sm">
-            <div className="rounded-lg border border-gold/15 bg-[#0c0a26]/40 p-3">
-              <p className="mb-1.5 flex items-center gap-2 text-gold">
-                <span>☀ 오늘의 태양 · {reading.starAdvice.sun.transitSignName}</span>
+          <div className="mb-7 flex flex-col gap-3 font-gowun">
+            <div className="rounded-lg border border-gold/15 bg-[#0c0a26]/40 p-4">
+              <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="text-sm text-gold">
+                  ☀ 오늘의 태양 · {reading.starAdvice.sun.transitSignName}
+                </span>
                 <span className="rounded-full border border-gold/25 px-2 py-0.5 text-[10px] text-gold/80">
                   {reading.starAdvice.sun.relationLabel}
                 </span>
-              </p>
-              <p className="text-xs leading-relaxed text-indigo-50/85">
+              </div>
+              <p className="mb-1.5 text-sm text-[#f3e9d2]">{reading.starAdvice.sun.title}</p>
+              <p className="text-xs leading-relaxed text-indigo-50/80">
                 {reading.starAdvice.sun.text}
               </p>
             </div>
-            <div className="rounded-lg border border-gold/15 bg-[#0c0a26]/40 p-3">
-              <p className="mb-1.5 flex items-center gap-2 text-gold">
-                <span>
+            <div className="rounded-lg border border-gold/15 bg-[#0c0a26]/40 p-4">
+              <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="text-sm text-gold">
                   ☾ 오늘의 달 · {reading.starAdvice.moon.transitSignName}
                   <span className="text-indigo-100/45"> · {reading.starAdvice.moon.phase}</span>
                 </span>
                 <span className="rounded-full border border-gold/25 px-2 py-0.5 text-[10px] text-gold/80">
                   {reading.starAdvice.moon.relationLabel}
                 </span>
-              </p>
-              <p className="text-xs leading-relaxed text-indigo-50/85">
+              </div>
+              <p className="mb-1.5 text-sm text-[#f3e9d2]">{reading.starAdvice.moon.title}</p>
+              <p className="text-xs leading-relaxed text-indigo-50/80">
                 {reading.starAdvice.moon.text}
+              </p>
+              <p className="mt-2 text-[10px] text-indigo-100/40">
+                · {reading.starAdvice.moon.reference}
               </p>
             </div>
           </div>
@@ -469,15 +428,6 @@ export default function FortuneApp() {
               </div>
             ))}
           </div>
-
-          {/* 천궁도 (출생 시각·지역을 입력한 경우) */}
-          {reading.chart && (
-            <>
-              <div className="my-6" />
-              <SectionTitle>천궁도 · NATAL CHART</SectionTitle>
-              <NatalChart chart={reading.chart} />
-            </>
-          )}
 
           <p className="font-gowun mt-6 text-center text-[11px] text-indigo-100/40">
             ✦ 이 카드는 오늘 하루, 당신 곁에 머뭅니다 ✦
