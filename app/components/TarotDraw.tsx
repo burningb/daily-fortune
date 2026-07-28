@@ -19,11 +19,15 @@ function fmtCountdown(ms: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }
 
+const EXTS = ["jpg", "png", "webp", "jpeg"];
+
 export default function TarotDraw({ dateKey }: { dateKey: string }) {
   const [card, setCard] = useState<TarotCard | null>(null);
   const [flipped, setFlipped] = useState(false);
   const [lockedToday, setLockedToday] = useState(false);
   const [countdown, setCountdown] = useState("");
+  const [extIdx, setExtIdx] = useState(0); // 이미지 확장자 시도
+  const [imgFailed, setImgFailed] = useState(false); // 이미지 없으면 이모지로 대체
 
   // 오늘 이미 뽑았다면 그 카드를 복원 (하루 한 장)
   useEffect(() => {
@@ -35,6 +39,8 @@ export default function TarotDraw({ dateKey }: { dateKey: string }) {
         setCard(saved.card);
         setFlipped(true);
         setLockedToday(true);
+        setExtIdx(0);
+        setImgFailed(false);
       }
     } catch {
       /* ignore */
@@ -56,6 +62,8 @@ export default function TarotDraw({ dateKey }: { dateKey: string }) {
     setCard(c);
     setFlipped(true);
     setLockedToday(true);
+    setExtIdx(0);
+    setImgFailed(false);
     try {
       localStorage.setItem(KEY, JSON.stringify({ date: dateKey, card: c }));
     } catch {
@@ -85,7 +93,7 @@ export default function TarotDraw({ dateKey }: { dateKey: string }) {
           className={`block ${lockedToday ? "cursor-default" : "cursor-pointer"}`}
         >
           <div
-            className={`relative h-64 w-40 select-none transition-transform duration-[600ms] [transform-style:preserve-3d] ${
+            className={`relative w-44 select-none transition-transform duration-[600ms] [aspect-ratio:2/3] [transform-style:preserve-3d] ${
               flipped ? "[transform:rotateY(180deg)]" : ""
             }`}
           >
@@ -99,24 +107,40 @@ export default function TarotDraw({ dateKey }: { dateKey: string }) {
               </div>
             </div>
 
-            {/* 앞면 */}
-            <div className="tarot-frame absolute inset-0 rounded-xl p-3 [backface-visibility:hidden] [transform:rotateY(180deg)]">
-              <div className="tarot-inline flex h-full w-full flex-col items-center justify-between rounded-lg py-4">
-                {card && (
-                  <>
-                    <span className="font-serif text-xs tracking-[0.3em] text-gold/80">
-                      {card.roman}
-                    </span>
-                    <span className="text-4xl">{card.emoji}</span>
-                    <div className="flex flex-col items-center gap-1 px-2 text-center">
-                      <span className="font-gowun text-base text-gold">{card.name}</span>
-                      <span className="font-gowun text-[11px] text-indigo-100/60">
-                        {card.keyword}
-                      </span>
-                    </div>
-                  </>
-                )}
-              </div>
+            {/* 앞면 — 이미지가 있으면 이미지, 없으면 이모지 대체 */}
+            <div className="absolute inset-0 overflow-hidden rounded-xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
+              {card && !imgFailed ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={`${card.imgBase}.${EXTS[extIdx]}`}
+                  alt={`${card.name} 타로 카드`}
+                  onError={() =>
+                    extIdx < EXTS.length - 1
+                      ? setExtIdx(extIdx + 1)
+                      : setImgFailed(true)
+                  }
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="tarot-frame h-full w-full rounded-xl p-3">
+                  <div className="tarot-inline flex h-full w-full flex-col items-center justify-between rounded-lg py-4">
+                    {card && (
+                      <>
+                        <span className="font-serif text-xs tracking-[0.3em] text-gold/80">
+                          {card.roman}
+                        </span>
+                        <span className="text-4xl">{card.emoji}</span>
+                        <div className="flex flex-col items-center gap-1 px-2 text-center">
+                          <span className="font-gowun text-base text-gold">{card.name}</span>
+                          <span className="font-gowun text-[11px] text-indigo-100/60">
+                            {card.keyword}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </button>

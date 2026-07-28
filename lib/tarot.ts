@@ -7,9 +7,10 @@ export type TarotCard = {
   emoji: string;
   keyword: string;
   message: string;
+  imgBase: string; // 예: /tarot/major/00 (확장자는 렌더 시 시도)
 };
 
-export const MAJOR_ARCANA: TarotCard[] = [
+const RAW: Omit<TarotCard, "imgBase">[] = [
   { roman: "0", name: "바보", emoji: "🎒", keyword: "새로운 시작", message: "익숙함을 잠시 내려놓고, 오늘 내딛을 수 있는 가벼운 첫걸음을 떠올려보세요." },
   { roman: "I", name: "마법사", emoji: "✨", keyword: "실행과 의지", message: "이미 내 손에 있는 재료로 무엇을 만들 수 있을지 상상해보세요." },
   { roman: "II", name: "여사제", emoji: "🌙", keyword: "직관과 내면", message: "답을 서두르기보다, 내면의 조용한 목소리에 잠시 귀 기울여보세요." },
@@ -33,6 +34,12 @@ export const MAJOR_ARCANA: TarotCard[] = [
   { roman: "XX", name: "심판", emoji: "🎺", keyword: "돌아봄과 부름", message: "지나온 나를 한 번 돌아보고, 지금의 부름에 귀 기울여보세요." },
   { roman: "XXI", name: "세계", emoji: "🌍", keyword: "완성과 통합", message: "하나의 매듭을 지었다면, 스스로를 조용히 축하해보세요." },
 ];
+
+// 배열 순서(인덱스)로 이미지 경로 부여 → public/tarot/major/00.jpg ...
+export const MAJOR_ARCANA: TarotCard[] = RAW.map((c, i) => ({
+  ...c,
+  imgBase: `/tarot/major/${String(i).padStart(2, "0")}`,
+}));
 
 // 무작위 한 장
 export function drawTarot(): TarotCard {
