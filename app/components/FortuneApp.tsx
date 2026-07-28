@@ -7,6 +7,7 @@ import {
   type BirthProfile,
   type Reading,
 } from "@/lib/astrology";
+import { CITIES } from "@/lib/cities";
 import Constellation from "@/app/components/Constellation";
 
 const ROMAN = [
@@ -64,6 +65,7 @@ export default function FortuneApp() {
   const [day, setDay] = useState("");
   const [hour, setHour] = useState<string>("unknown");
   const [minute, setMinute] = useState<string>("0");
+  const [cityIdx, setCityIdx] = useState<string>("0"); // 기본: 서울
   const [error, setError] = useState("");
 
   const [reading, setReading] = useState<Reading | null>(null);
@@ -80,13 +82,19 @@ export default function FortuneApp() {
     if (!d || d < 1 || d > 31) return setError("일은 1~31 사이로 입력해주세요.");
     setError("");
 
+    const knowsTime = hour !== "unknown";
+    const city = CITIES[Number(cityIdx)] ?? CITIES[0];
     const profile: BirthProfile = {
       name: name.trim(),
       year: y,
       month: m,
       day: d,
-      hour: hour === "unknown" ? null : Number(hour),
-      minute: hour === "unknown" ? 0 : Number(minute),
+      hour: knowsTime ? Number(hour) : null,
+      minute: knowsTime ? Number(minute) : 0,
+      lat: knowsTime ? city.lat : undefined,
+      lon: knowsTime ? city.lon : undefined,
+      tz: knowsTime ? city.tz : undefined,
+      cityName: knowsTime ? city.name : undefined,
     };
     setReading(generateReading(profile, new Date()));
     setFlipped(true);
@@ -147,9 +155,9 @@ export default function FortuneApp() {
           </div>
 
           <label className={labelClass}>
-            태어난 시간 <span className="text-indigo-100/40">· 상승궁 추정</span>
+            태어난 시간 <span className="text-indigo-100/40">· 상승궁 계산</span>
           </label>
-          <div className="mb-6 grid grid-cols-2 gap-2">
+          <div className="mb-4 grid grid-cols-2 gap-2">
             <select
               value={hour}
               onChange={(e) => setHour(e.target.value)}
@@ -175,6 +183,40 @@ export default function FortuneApp() {
               ))}
             </select>
           </div>
+
+          <label className={labelClass}>
+            출생 지역 <span className="text-indigo-100/40">· 정확한 상승궁</span>
+          </label>
+          <select
+            value={cityIdx}
+            onChange={(e) => setCityIdx(e.target.value)}
+            disabled={hour === "unknown"}
+            className={`${inputClass} mb-2 disabled:opacity-40`}
+          >
+            <optgroup label="국내">
+              {CITIES.map((c, i) =>
+                c.group === "국내" ? (
+                  <option key={i} value={i}>
+                    {c.name}
+                  </option>
+                ) : null,
+              )}
+            </optgroup>
+            <optgroup label="해외">
+              {CITIES.map((c, i) =>
+                c.group === "해외" ? (
+                  <option key={i} value={i}>
+                    {c.name}
+                  </option>
+                ) : null,
+              )}
+            </optgroup>
+          </select>
+          <p className="font-gowun mb-6 text-[11px] leading-relaxed text-indigo-100/40">
+            {hour === "unknown"
+              ? "시간을 알면 출생 지역으로 정확한 상승궁을 계산해요."
+              : "표준시 기준이며 서머타임은 반영하지 않습니다."}
+          </p>
 
           {error && (
             <p className="font-gowun mb-3 text-center text-sm text-rose-300">{error}</p>
@@ -270,11 +312,17 @@ export default function FortuneApp() {
               </p>
               <p className="font-gowun mt-1 text-[#f3e9d2]">
                 {reading.ascendant
-                  ? `${reading.ascendant.symbol} ${reading.ascendant.name}`
+                  ? `${reading.ascendant.symbol} ${reading.ascendant.name}${
+                      reading.ascendantDeg != null
+                        ? ` ${Math.floor(reading.ascendantDeg)}°`
+                        : ""
+                    }`
                   : "—"}
               </p>
               <p className="font-gowun text-[11px] text-indigo-100/50">
-                {reading.ascendant ? "태어난 시간 기반" : "시간 미입력"}
+                {reading.ascendant
+                  ? `${reading.birthPlace ?? ""} 기준`
+                  : "시간 미입력"}
               </p>
             </div>
           </div>

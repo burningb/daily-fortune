@@ -31,6 +31,8 @@ export type Reading = {
   sunSign: SunSign;
   ascendant: SunSign | null; // 태어난 시간을 모르면 null
   themeLine: string;
+  ascendantDeg: number | null;
+  birthPlace: string | null;
   overallText: string;
   signProfile: SignProfile;
   categories: CategoryReading[];
@@ -228,14 +230,75 @@ export function getSunSign(month: number, day: number): SunSign {
   return SIGNS[11]; // 2.19~3.20
 }
 
-// 태어난 시간 → 상승궁(어센던트) 근사치.
-// 위경도 없이 계산하는 단순화 모델(일출=태양궁 기준, 약 2시간마다 한 궁씩 이동).
-// 분까지 반영해 소수 시각으로 계산한다.
-export function estimateAscendant(sun: SunSign, birthHour: number, birthMinute = 0): SunSign {
-  const sunIndex = SIGNS.findIndex((s) => s.key === sun.key);
-  const decimalHour = birthHour + birthMinute / 60;
-  const offset = Math.floor(((decimalHour - 6 + 24) % 24) / 2);
-  return SIGNS[(sunIndex + offset) % 12];
+// ── 상승궁(어센던트) 정확 계산 ──────────────────────────────────
+// 출생 지역(위·경도)·시각을 항성시(LST)로 환산해 동쪽 지평선의 황도점을 구한다.
+const D2R = Math.PI / 180;
+const R2D = 180 / Math.PI;
+const norm360 = (x: number) => ((x % 360) + 360) % 360;
+
+function julianDay(y: number, m: number, d: number, utHour: number): number {
+  let Y = y;
+  let M = m;
+  if (M <= 2) {
+    Y -= 1;
+    M += 12;
+  }
+  const A = Math.floor(Y / 100);
+  const B = 2 - A + Math.floor(A / 4);
+  const dayFrac = d + utHour / 24;
+  return (
+    Math.floor(365.25 * (Y + 4716)) +
+    Math.floor(30.6001 * (M + 1)) +
+    dayFrac +
+    B -
+    1524.5
+  );
+}
+
+// 그리니치 평균 항성시(도)
+function gmst(JD: number): number {
+  const T = (JD - 2451545.0) / 36525;
+  const g =
+    280.46061837 +
+    360.98564736629 * (JD - 2451545.0) +
+    0.000387933 * T * T -
+    (T * T * T) / 38710000;
+  return norm360(g);
+}
+
+// 황도경사각(도)
+function obliquity(JD: number): number {
+  const T = (JD - 2451545.0) / 36525;
+  return (
+    23.439291 - 0.0130042 * T - 0.00000016 * T * T + 0.000000504 * T * T * T
+  );
+}
+
+export type Ascendant = { sign: SunSign; degInSign: number };
+
+// 정확한 상승궁. localDecimalHour=현지 시각(시+분/60), lonEast=동경(+), tz=UTC 오프셋(시).
+export function computeAscendant(
+  year: number,
+  month: number,
+  day: number,
+  localDecimalHour: number,
+  lat: number,
+  lonEast: number,
+  tz: number,
+): Ascendant {
+  const ut = localDecimalHour - tz;
+  const JD = julianDay(year, month, day, ut);
+  const ramc = norm360(gmst(JD) + lonEast) * D2R;
+  const eps = obliquity(JD) * D2R;
+  const phi = lat * D2R;
+  const ascDeg = norm360(
+    Math.atan2(
+      Math.cos(ramc),
+      -(Math.sin(ramc) * Math.cos(eps) + Math.tan(phi) * Math.sin(eps)),
+    ) * R2D,
+  );
+  const idx = Math.floor(ascDeg / 30) % 12;
+  return { sign: SIGNS[idx], degInSign: ascDeg - idx * 30 };
 }
 
 const ELEMENT_COMPAT: Record<Element, Element[]> = {
@@ -358,6 +421,11 @@ export type BirthProfile = {
   day: number;
   hour: number | null; // 모르면 null
   minute: number; // 시간을 모르면 의미 없음(0)
+  // 출생 지역 — 정확한 상승궁 계산용(시간을 모르면 사용 안 함)
+  lat?: number;
+  lon?: number;
+  tz?: number;
+  cityName?: string;
 };
 
 export function generateReading(profile: BirthProfile, today: Date): Reading {
@@ -372,10 +440,23 @@ export function generateReading(profile: BirthProfile, today: Date): Reading {
   const scoreValue = () => 40 + Math.floor(rand() * 61); // 40~100
 
   const sunSign = getSunSign(profile.month, profile.day);
-  const ascendant =
-    profile.hour !== null
-      ? estimateAscendant(sunSign, profile.hour, profile.minute)
-      : null;
+  const canComputeAsc =
+    profile.hour !== null &&
+    profile.lat != null &&
+    profile.lon != null &&
+    profile.tz != null;
+  const ascInfo = canComputeAsc
+    ? computeAscendant(
+        profile.year,
+        profile.month,
+        profile.day,
+        profile.hour! + profile.minute / 60,
+        profile.lat!,
+        profile.lon!,
+        profile.tz!,
+      )
+    : null;
+  const ascendant = ascInfo ? ascInfo.sign : null;
 
   const makeCategory = (label: string, pool: string[]): CategoryReading => {
     const value = scoreValue();
@@ -400,6 +481,8 @@ export function generateReading(profile: BirthProfile, today: Date): Reading {
     name: profile.name,
     sunSign,
     ascendant,
+    ascendantDeg: ascInfo ? ascInfo.degInSign : null,
+    birthPlace: canComputeAsc ? (profile.cityName ?? null) : null,
     themeLine: ELEMENT_THEME[sunSign.element],
     overallText: categories[0].text,
     signProfile: SIGN_PROFILES[sunSign.key],
