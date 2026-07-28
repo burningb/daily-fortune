@@ -7,6 +7,7 @@ import {
   type BirthProfile,
   type Reading,
 } from "@/lib/astrology";
+import Constellation from "@/app/components/Constellation";
 
 const ROMAN = [
   "I", "II", "III", "IV", "V", "VI",
@@ -220,13 +221,11 @@ export default function FortuneApp() {
                 {romanFor(reading.sunSign.key)}
               </span>
 
-              <div className="flex flex-col items-center gap-3">
-                <span
-                  className="text-7xl text-gold"
-                  style={{ filter: "drop-shadow(0 0 14px rgba(233,200,119,0.55))" }}
-                >
-                  {reading.sunSign.symbol}
-                </span>
+              <div className="flex flex-col items-center gap-2">
+                <Constellation
+                  signKey={reading.sunSign.key}
+                  className="h-40 w-40 sm:h-44 sm:w-44"
+                />
                 <span className="font-gowun text-xs text-indigo-100/60">
                   {reading.name} 님의 별
                 </span>
