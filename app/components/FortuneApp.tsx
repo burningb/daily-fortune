@@ -496,6 +496,7 @@ export default function FortuneApp() {
               "오늘 나는 무엇을 느끼고 있나요?"
             }
             dateLabel={dateLabel}
+            dateKey={dateKey}
           />
         </div>
       </div>

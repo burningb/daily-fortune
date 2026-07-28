@@ -29,12 +29,27 @@ export default function ShareCard({
   headline,
   question,
   dateLabel,
+  dateKey,
 }: {
   headline: string;
   question: string;
   dateLabel: string;
+  dateKey?: string;
 }) {
   const [copied, setCopied] = useState(false);
+
+  // 오늘 뽑은 타로가 있으면 함께 표기
+  const todayCard = (): string | null => {
+    try {
+      const raw = localStorage.getItem("bstoday.tarot");
+      if (!raw) return null;
+      const t = JSON.parse(raw);
+      if (t.date === dateKey && t.card) return `${t.card.name} · ${t.card.keyword}`;
+      return null;
+    } catch {
+      return null;
+    }
+  };
 
   const render = (): string => {
     const canvas = document.createElement("canvas");
@@ -112,6 +127,14 @@ export default function ShareCard({
       qy += 56;
     }
 
+    // 오늘의 타로 (있으면)
+    const tc = todayCard();
+    if (tc) {
+      ctx.fillStyle = "rgba(233,200,119,0.75)";
+      ctx.font = "400 30px serif";
+      ctx.fillText(`🃏 오늘의 카드 · ${tc}`, W / 2, H - 150);
+    }
+
     // 푸터
     ctx.fillStyle = "rgba(233,200,119,0.6)";
     ctx.font = "400 28px serif";
@@ -130,8 +153,11 @@ export default function ShareCard({
 
   const copy = async () => {
     try {
+      const tc = todayCard();
       await navigator.clipboard.writeText(
-        `${headline}\n\n오늘의 질문\n${question}\n\nBIRTH SKY, TODAY · 오늘, 나의 날씨`,
+        `${headline}\n\n오늘의 질문\n${question}${
+          tc ? `\n\n🃏 오늘의 카드 · ${tc}` : ""
+        }\n\nBIRTH SKY, TODAY · 오늘, 나의 날씨`,
       );
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2000);

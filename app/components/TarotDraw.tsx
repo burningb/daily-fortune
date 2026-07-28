@@ -5,10 +5,25 @@ import { drawTarot, type TarotCard } from "@/lib/tarot";
 
 const KEY = "bstoday.tarot";
 
+function msToMidnight(): number {
+  const now = new Date();
+  const mid = new Date(now);
+  mid.setHours(24, 0, 0, 0);
+  return mid.getTime() - now.getTime();
+}
+function fmtCountdown(ms: number): string {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+}
+
 export default function TarotDraw({ dateKey }: { dateKey: string }) {
   const [card, setCard] = useState<TarotCard | null>(null);
   const [flipped, setFlipped] = useState(false);
   const [lockedToday, setLockedToday] = useState(false);
+  const [countdown, setCountdown] = useState("");
 
   // 오늘 이미 뽑았다면 그 카드를 복원 (하루 한 장)
   useEffect(() => {
@@ -25,6 +40,15 @@ export default function TarotDraw({ dateKey }: { dateKey: string }) {
       /* ignore */
     }
   }, [dateKey]);
+
+  // 자정까지 남은 시간(다음 카드까지)
+  useEffect(() => {
+    if (!lockedToday) return;
+    const tick = () => setCountdown(fmtCountdown(msToMidnight()));
+    tick();
+    const id = window.setInterval(tick, 1000);
+    return () => window.clearInterval(id);
+  }, [lockedToday]);
 
   const draw = () => {
     if (lockedToday) return; // 하루 한 번만
@@ -113,9 +137,16 @@ export default function TarotDraw({ dateKey }: { dateKey: string }) {
           🃏 타로카드로 오늘의 운세
         </button>
       ) : (
-        <p className="font-gowun text-center text-[11px] text-indigo-100/45">
-          오늘의 카드는 뽑았어요 · 내일 다시 만나요
-        </p>
+        <div className="text-center">
+          <p className="font-gowun text-[11px] text-indigo-100/45">
+            오늘의 카드는 뽑았어요 · 내일 다시 만나요
+          </p>
+          {countdown && (
+            <p className="font-serif mt-1 text-[11px] tracking-[0.15em] text-gold/60">
+              다음 카드까지 {countdown}
+            </p>
+          )}
+        </div>
       )}
     </div>
   );

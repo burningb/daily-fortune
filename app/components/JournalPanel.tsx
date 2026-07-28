@@ -39,6 +39,7 @@ export default function JournalPanel({
   const [reflection, setReflection] = useState("");
   const [saved, setSaved] = useState(false);
   const [yesterdayMoods, setYesterdayMoods] = useState<string[]>([]);
+  const [todayCard, setTodayCard] = useState<string | null>(null);
 
   useEffect(() => {
     const all = loadAll();
@@ -50,6 +51,18 @@ export default function JournalPanel({
     }
     if (yesterdayKey && all[yesterdayKey]) {
       setYesterdayMoods(all[yesterdayKey].moods ?? []);
+    }
+    // 오늘 뽑은 타로가 있으면 함께 표시
+    try {
+      const raw = localStorage.getItem("bstoday.tarot");
+      if (raw) {
+        const t = JSON.parse(raw);
+        if (t.date === dateKey && t.card) {
+          setTodayCard(`${t.card.name} · ${t.card.keyword}`);
+        }
+      }
+    } catch {
+      /* ignore */
     }
   }, [dateKey, yesterdayKey]);
 
@@ -141,10 +154,15 @@ export default function JournalPanel({
         </p>
       )}
 
-      {yesterdayMoods.length > 0 && (
-        <p className="mt-4 border-t border-white/5 pt-3 text-center text-[11px] text-indigo-100/50">
-          어제의 기분 · {yesterdayMoods.join(" · ")}
-        </p>
+      {(todayCard || yesterdayMoods.length > 0) && (
+        <div className="mt-4 border-t border-white/5 pt-3 text-center text-[11px] text-indigo-100/50">
+          {todayCard && <p>🃏 오늘 뽑은 카드 · {todayCard}</p>}
+          {yesterdayMoods.length > 0 && (
+            <p className={todayCard ? "mt-1" : ""}>
+              어제의 기분 · {yesterdayMoods.join(" · ")}
+            </p>
+          )}
+        </div>
       )}
     </div>
   );
