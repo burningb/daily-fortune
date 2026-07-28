@@ -1,5 +1,7 @@
 // 모던 점성학 기반 오늘의 운세 로직 (클라이언트 전용, 백엔드 없이 동작)
 
+import { computeBodies } from "./ephemeris";
+
 export type Element = "불" | "흙" | "공기" | "물";
 
 export type SunSign = {
@@ -33,6 +35,7 @@ export type Reading = {
   themeLine: string;
   ascendantDeg: number | null;
   birthPlace: string | null;
+  chart: NatalChart | null;
   overallText: string;
   signProfile: SignProfile;
   categories: CategoryReading[];
@@ -276,6 +279,54 @@ function obliquity(JD: number): number {
 
 export type Ascendant = { sign: SunSign; degInSign: number };
 
+// ── 천궁도(네이탈 차트) ─────────────────────────────────────────
+export type ChartPlanet = {
+  key: string;
+  name: string; // 한글
+  glyph: string; // 점성 기호
+  lon: number; // 황경 0~360
+  sign: SunSign;
+  degInSign: number;
+  house: number | null; // 홀사인 하우스(1~12)
+};
+
+export type Aspect = {
+  a: string; // planet key
+  b: string;
+  type: string; // 한글 각명
+  glyph: string;
+  orb: number;
+};
+
+export type NatalChart = {
+  planets: ChartPlanet[];
+  aspects: Aspect[];
+  ascLon: number; // 상승궁 황경(휠 회전 기준)
+  ascSignIndex: number;
+};
+
+export const PLANET_META: { key: string; name: string; glyph: string }[] = [
+  { key: "sun", name: "태양", glyph: "☉" },
+  { key: "moon", name: "달", glyph: "☽" },
+  { key: "mercury", name: "수성", glyph: "☿" },
+  { key: "venus", name: "금성", glyph: "♀" },
+  { key: "mars", name: "화성", glyph: "♂" },
+  { key: "jupiter", name: "목성", glyph: "♃" },
+  { key: "saturn", name: "토성", glyph: "♄" },
+  { key: "uranus", name: "천왕성", glyph: "♅" },
+  { key: "neptune", name: "해왕성", glyph: "♆" },
+  { key: "pluto", name: "명왕성", glyph: "♇" },
+];
+
+const ASPECT_DEFS: { type: string; glyph: string; angle: number; orb: number }[] =
+  [
+    { type: "합", glyph: "☌", angle: 0, orb: 8 },
+    { type: "육각", glyph: "⚹", angle: 60, orb: 4 },
+    { type: "사각", glyph: "□", angle: 90, orb: 6 },
+    { type: "삼각", glyph: "△", angle: 120, orb: 6 },
+    { type: "대칭", glyph: "☍", angle: 180, orb: 8 },
+  ];
+
 // 정확한 상승궁. localDecimalHour=현지 시각(시+분/60), lonEast=동경(+), tz=UTC 오프셋(시).
 export function computeAscendant(
   year: number,
@@ -299,6 +350,58 @@ export function computeAscendant(
   );
   const idx = Math.floor(ascDeg / 30) % 12;
   return { sign: SIGNS[idx], degInSign: ascDeg - idx * 30 };
+}
+
+// 출생 순간의 천궁도(행성 위치·홀사인 하우스·애스펙트)
+export function buildNatalChart(
+  year: number,
+  month: number,
+  day: number,
+  localDecimalHour: number,
+  tz: number,
+  ascLon: number,
+): NatalChart {
+  const ut = localDecimalHour - tz;
+  const bodies = computeBodies(year, month, day, ut);
+  const ascSignIndex = Math.floor(ascLon / 30) % 12;
+
+  const planets: ChartPlanet[] = PLANET_META.map((p) => {
+    const lon = bodies[p.key as keyof typeof bodies];
+    const signIdx = Math.floor(lon / 30) % 12;
+    const house = ((signIdx - ascSignIndex + 12) % 12) + 1; // 홀사인
+    return {
+      key: p.key,
+      name: p.name,
+      glyph: p.glyph,
+      lon,
+      sign: SIGNS[signIdx],
+      degInSign: lon - signIdx * 30,
+      house,
+    };
+  });
+
+  const aspects: Aspect[] = [];
+  for (let i = 0; i < planets.length; i++) {
+    for (let j = i + 1; j < planets.length; j++) {
+      const diff = Math.abs(planets[i].lon - planets[j].lon);
+      const sep = Math.min(diff, 360 - diff);
+      for (const def of ASPECT_DEFS) {
+        const orb = Math.abs(sep - def.angle);
+        if (orb <= def.orb) {
+          aspects.push({
+            a: planets[i].key,
+            b: planets[j].key,
+            type: def.type,
+            glyph: def.glyph,
+            orb,
+          });
+          break;
+        }
+      }
+    }
+  }
+
+  return { planets, aspects, ascLon, ascSignIndex };
 }
 
 const ELEMENT_COMPAT: Record<Element, Element[]> = {
@@ -458,6 +561,19 @@ export function generateReading(profile: BirthProfile, today: Date): Reading {
     : null;
   const ascendant = ascInfo ? ascInfo.sign : null;
 
+  const chart =
+    canComputeAsc && ascInfo
+      ? buildNatalChart(
+          profile.year,
+          profile.month,
+          profile.day,
+          profile.hour! + profile.minute / 60,
+          profile.tz!,
+          SIGNS.findIndex((s) => s.key === ascInfo.sign.key) * 30 +
+            ascInfo.degInSign,
+        )
+      : null;
+
   const makeCategory = (label: string, pool: string[]): CategoryReading => {
     const value = scoreValue();
     return { label, value, stars: Math.max(1, Math.round(value / 20)), text: pick(pool) };
@@ -483,6 +599,7 @@ export function generateReading(profile: BirthProfile, today: Date): Reading {
     ascendant,
     ascendantDeg: ascInfo ? ascInfo.degInSign : null,
     birthPlace: canComputeAsc ? (profile.cityName ?? null) : null,
+    chart,
     themeLine: ELEMENT_THEME[sunSign.element],
     overallText: categories[0].text,
     signProfile: SIGN_PROFILES[sunSign.key],

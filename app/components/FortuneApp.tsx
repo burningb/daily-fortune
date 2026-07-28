@@ -9,6 +9,7 @@ import {
 } from "@/lib/astrology";
 import { CITIES } from "@/lib/cities";
 import Constellation from "@/app/components/Constellation";
+import NatalChart from "@/app/components/NatalChart";
 
 const ROMAN = [
   "I", "II", "III", "IV", "V", "VI",
@@ -421,7 +422,16 @@ export default function FortuneApp() {
             ))}
           </div>
 
-          <p className="font-gowun mt-5 text-center text-[11px] text-indigo-100/40">
+          {/* 천궁도 (출생 시각·지역을 입력한 경우) */}
+          {reading.chart && (
+            <>
+              <div className="my-6" />
+              <SectionTitle>천궁도 · NATAL CHART</SectionTitle>
+              <NatalChart chart={reading.chart} />
+            </>
+          )}
+
+          <p className="font-gowun mt-6 text-center text-[11px] text-indigo-100/40">
             ✦ 이 카드는 오늘 하루, 당신 곁에 머뭅니다 ✦
           </p>
         </div>
