@@ -192,9 +192,49 @@ export default function FortuneApp() {
           </div>
         </div>
 
+        {/* 별자리 성격 프로필 */}
+        <div className="mb-5 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 p-4 ring-1 ring-white/10">
+          <h3 className="text-center text-base font-semibold text-white">
+            {reading.sunSign.symbol} {reading.sunSign.name}, 당신은
+          </h3>
+          <p className="mt-1 mb-3 text-center text-xs italic text-indigo-200">
+            “{reading.signProfile.tagline}”
+          </p>
+
+          <p className="mb-3 text-sm leading-relaxed text-slate-100">
+            {reading.signProfile.personality}
+          </p>
+
+          <div className="flex flex-col gap-2 text-sm leading-relaxed">
+            <p className="text-emerald-100">
+              <span className="font-semibold">✨ 빛나는 점 · </span>
+              {reading.signProfile.strength}
+            </p>
+            <p className="text-amber-100">
+              <span className="font-semibold">🌙 살며시 조심할 점 · </span>
+              {reading.signProfile.shadow}
+            </p>
+            <p className="text-rose-100">
+              <span className="font-semibold">💗 사랑할 때 · </span>
+              {reading.signProfile.inLove}
+            </p>
+          </div>
+
+          <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+            {reading.signProfile.keywords.map((k) => (
+              <span
+                key={k}
+                className="rounded-full bg-white/15 px-3 py-1 text-xs text-white"
+              >
+                #{k}
+              </span>
+            ))}
+          </div>
+        </div>
+
         {/* 총평 */}
         <p className="mb-5 rounded-xl bg-white/5 p-3 text-sm leading-relaxed text-slate-100">
-          ✨ {reading.overallText}
+          ✨ 오늘의 흐름 · {reading.overallText}
         </p>
 
         {/* 운세 지수 */}
