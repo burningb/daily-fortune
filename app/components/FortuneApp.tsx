@@ -12,6 +12,7 @@ import Constellation from "@/app/components/Constellation";
 import DailyWeather from "@/app/components/DailyWeather";
 import JournalPanel from "@/app/components/JournalPanel";
 import ShareCard from "@/app/components/ShareCard";
+import TarotDraw from "@/app/components/TarotDraw";
 
 const PROFILE_KEY = "bstoday.profile";
 
@@ -58,6 +59,7 @@ export default function FortuneApp() {
   const [daily, setDaily] = useState<DailyBundle | null>(null);
   const [dateLabel, setDateLabel] = useState("");
   const [dateKey, setDateKey] = useState("");
+  const [yesterdayKey, setYesterdayKey] = useState("");
   const [savedName, setSavedName] = useState<string | null>(null);
 
   // 저장된 프로필 불러오기 (이 기기에만 저장)
@@ -148,6 +150,10 @@ export default function FortuneApp() {
     );
     setDateKey(
       `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`,
+    );
+    const y1 = new Date(now.getTime() - 86400000);
+    setYesterdayKey(
+      `${y1.getFullYear()}-${y1.getMonth() + 1}-${y1.getDate()}`,
     );
   };
 
@@ -470,6 +476,7 @@ export default function FortuneApp() {
           <SectionTitle>오늘의 기록</SectionTitle>
           <JournalPanel
             dateKey={dateKey}
+            yesterdayKey={yesterdayKey}
             question={
               daily?.report.reflectionQuestion ??
               "오늘 나는 무엇을 느끼고 있나요?"
@@ -499,6 +506,18 @@ export default function FortuneApp() {
       >
         다시 별을 부르기
       </button>
+
+      {/* 보너스: 타로 한 장 뽑기 */}
+      <div className="mt-2 w-full max-w-[26rem]">
+        <div className="mb-4 flex items-center justify-center gap-3">
+          <span className="h-px w-8 bg-gradient-to-r from-transparent to-gold/40" />
+          <span className="font-serif text-sm tracking-[0.25em] text-gold">
+            오늘의 타로 한 장
+          </span>
+          <span className="h-px w-8 bg-gradient-to-l from-transparent to-gold/40" />
+        </div>
+        <TarotDraw />
+      </div>
     </div>
   );
 }

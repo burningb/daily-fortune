@@ -153,6 +153,27 @@ export default function DailyWeather({
         {r.emotionalText}
       </p>
 
+      {/* 시간대별 날씨 (달의 이동 기반) */}
+      {daily.timeWindows.length > 0 && (
+        <>
+          <SectionTitle>시간대별 날씨</SectionTitle>
+          <div className="flex flex-col gap-2">
+            {daily.timeWindows.map((w) => (
+              <div
+                key={w.period}
+                className="rounded-lg border border-gold/10 bg-[#0c0a26]/30 p-3"
+              >
+                <p className="mb-1 flex items-center gap-2 text-sm text-gold">
+                  <span>{w.period}</span>
+                  <span className="text-[11px] text-indigo-100/50">{w.label}</span>
+                </p>
+                <p className="text-xs leading-relaxed text-indigo-50/80">{w.text}</p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
       {/* 오늘의 활용법 */}
       <SectionTitle>오늘의 활용법</SectionTitle>
       <ul className="flex flex-col gap-2">

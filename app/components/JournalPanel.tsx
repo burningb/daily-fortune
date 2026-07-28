@@ -28,23 +28,30 @@ function loadAll(): Record<string, Entry> {
 
 export default function JournalPanel({
   dateKey,
+  yesterdayKey,
   question,
 }: {
   dateKey: string;
+  yesterdayKey?: string;
   question: string;
 }) {
   const [moods, setMoods] = useState<string[]>([]);
   const [reflection, setReflection] = useState("");
   const [saved, setSaved] = useState(false);
+  const [yesterdayMoods, setYesterdayMoods] = useState<string[]>([]);
 
   useEffect(() => {
-    const e = loadAll()[dateKey];
+    const all = loadAll();
+    const e = all[dateKey];
     if (e) {
       setMoods(e.moods ?? []);
       setReflection(e.reflection ?? "");
       setSaved(true);
     }
-  }, [dateKey]);
+    if (yesterdayKey && all[yesterdayKey]) {
+      setYesterdayMoods(all[yesterdayKey].moods ?? []);
+    }
+  }, [dateKey, yesterdayKey]);
 
   const toggle = (m: string) => {
     setMoods((prev) =>
@@ -131,6 +138,12 @@ export default function JournalPanel({
       {saved && (
         <p className="mt-2 text-center text-[11px] text-emerald-200/70">
           ✓ 저장되었습니다 · 비공개
+        </p>
+      )}
+
+      {yesterdayMoods.length > 0 && (
+        <p className="mt-4 border-t border-white/5 pt-3 text-center text-[11px] text-indigo-100/50">
+          어제의 기분 · {yesterdayMoods.join(" · ")}
         </p>
       )}
     </div>
