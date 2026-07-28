@@ -8,8 +8,10 @@ import {
   type Reading,
 } from "@/lib/astrology";
 import { CITIES } from "@/lib/cities";
+import { buildDaily, type DailyBundle } from "@/lib/daily";
 import Constellation from "@/app/components/Constellation";
 import NatalChart from "@/app/components/NatalChart";
+import DailyWeather from "@/app/components/DailyWeather";
 
 const ROMAN = [
   "I", "II", "III", "IV", "V", "VI",
@@ -70,6 +72,8 @@ export default function FortuneApp() {
   const [error, setError] = useState("");
 
   const [reading, setReading] = useState<Reading | null>(null);
+  const [daily, setDaily] = useState<DailyBundle | null>(null);
+  const [dateLabel, setDateLabel] = useState("");
   const [flipped, setFlipped] = useState(false);
 
   const handleSubmit = () => {
@@ -97,13 +101,20 @@ export default function FortuneApp() {
       tz: knowsTime ? city.tz : undefined,
       cityName: knowsTime ? city.name : undefined,
     };
-    setReading(generateReading(profile, new Date()));
+    const now = new Date();
+    const r = generateReading(profile, now);
+    setReading(r);
+    setDaily(r.chart ? buildDaily(r.chart, city.tz, now) : null);
+    setDateLabel(
+      `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일`,
+    );
     setFlipped(true);
   };
 
   const handleReset = () => {
     setFlipped(false);
     setReading(null);
+    setDaily(null);
   };
 
   // ── 입력 폼 화면 ──────────────────────────────────────────────
@@ -289,6 +300,26 @@ export default function FortuneApp() {
           </div>
         </div>
       </div>
+
+      {/* 오늘의 날씨 (출생 시각·지역 입력 시) */}
+      {daily && reading.chart && (
+        <div className="tarot-frame w-[21rem] rounded-xl p-6 sm:w-[30rem]">
+          <div className="tarot-inline rounded-lg p-5 sm:p-6">
+            <p className="font-serif mb-1 text-center text-xs tracking-[0.35em] text-gold/70">
+              ☁ TODAY&apos;S WEATHER ☁
+            </p>
+            <h2 className="font-gowun mb-4 text-center text-lg text-[#f3e9d2]">
+              오늘, 나의 날씨
+            </h2>
+            <DailyWeather
+              daily={daily}
+              chart={reading.chart}
+              dateLabel={dateLabel}
+              placeLabel={reading.birthPlace ?? ""}
+            />
+          </div>
+        </div>
+      )}
 
       {/* 상세 결과 패널 */}
       <div className="tarot-frame w-[21rem] rounded-xl p-7 sm:w-[26rem]">

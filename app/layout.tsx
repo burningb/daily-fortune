@@ -24,8 +24,9 @@ const gowunBatang = Gowun_Batang({
 });
 
 export const metadata: Metadata = {
-  title: "오늘의 나에게 · 별과 타로",
-  description: "별과 별자리를 통해 오늘의 나를 들여다보는 시간",
+  title: "BIRTH SKY, TODAY · 오늘, 나의 날씨",
+  description:
+    "출생차트와 오늘의 천체 흐름이 만나는 지점을 읽어, 오늘의 감정·관계·행동의 가능성을 보여주는 모던 애스트롤로지 자기성찰 서비스",
 };
 
 export default function RootLayout({

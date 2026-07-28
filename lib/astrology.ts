@@ -302,6 +302,7 @@ export type NatalChart = {
   planets: ChartPlanet[];
   aspects: Aspect[];
   ascLon: number; // 상승궁 황경(휠 회전 기준)
+  mcLon: number; // 천정(MC) 황경
   ascSignIndex: number;
 };
 
@@ -352,6 +353,22 @@ export function computeAscendant(
   return { sign: SIGNS[idx], degInSign: ascDeg - idx * 30 };
 }
 
+// 천정(MC, Midheaven) 황경
+export function computeMidheaven(
+  year: number,
+  month: number,
+  day: number,
+  localDecimalHour: number,
+  lonEast: number,
+  tz: number,
+): number {
+  const ut = localDecimalHour - tz;
+  const JD = julianDay(year, month, day, ut);
+  const ramc = norm360(gmst(JD) + lonEast) * D2R;
+  const eps = obliquity(JD) * D2R;
+  return norm360(Math.atan2(Math.sin(ramc), Math.cos(ramc) * Math.cos(eps)) * R2D);
+}
+
 // 출생 순간의 천궁도(행성 위치·홀사인 하우스·애스펙트)
 export function buildNatalChart(
   year: number,
@@ -360,6 +377,7 @@ export function buildNatalChart(
   localDecimalHour: number,
   tz: number,
   ascLon: number,
+  mcLon: number,
 ): NatalChart {
   const ut = localDecimalHour - tz;
   const bodies = computeBodies(year, month, day, ut);
@@ -401,7 +419,7 @@ export function buildNatalChart(
     }
   }
 
-  return { planets, aspects, ascLon, ascSignIndex };
+  return { planets, aspects, ascLon, mcLon, ascSignIndex };
 }
 
 const ELEMENT_COMPAT: Record<Element, Element[]> = {
@@ -571,6 +589,14 @@ export function generateReading(profile: BirthProfile, today: Date): Reading {
           profile.tz!,
           SIGNS.findIndex((s) => s.key === ascInfo.sign.key) * 30 +
             ascInfo.degInSign,
+          computeMidheaven(
+            profile.year,
+            profile.month,
+            profile.day,
+            profile.hour! + profile.minute / 60,
+            profile.lon!,
+            profile.tz!,
+          ),
         )
       : null;
 

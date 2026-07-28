@@ -12,15 +12,15 @@ export default function Home() {
 
       <header className="animate-rise text-center">
         <p className="font-serif mb-3 text-xs tracking-[0.5em] text-gold/80">
-          ☾ KNOW THYSELF ☽
+          ☾ BIRTH SKY, TODAY ☽
         </p>
         <h1 className="font-serif gold-shimmer text-4xl font-semibold tracking-wide sm:text-5xl">
-          오늘의 나에게
+          오늘, 나의 날씨
         </h1>
         <p className="font-gowun mx-auto mt-4 max-w-lg text-center text-sm leading-relaxed text-indigo-100/70">
-          별이 내려앉은 자리에서,
+          태어난 순간의 하늘은 변하지 않지만, 오늘의 하늘은 계속 움직입니다.
           <br />
-          경민님이 당신의 오늘을 조용히 읽어드립니다.
+          경민님이 두 하늘이 만나는 지점을 읽어, 오늘을 조금 더 선명하게 바라보게 합니다.
         </p>
         <div className="mx-auto mt-5 flex items-center justify-center gap-3 text-gold/60">
           <span className="h-px w-10 bg-gradient-to-r from-transparent to-gold/50" />
