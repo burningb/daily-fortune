@@ -1,4 +1,5 @@
 import FortuneApp from "@/app/components/FortuneApp";
+import VisitorCount from "@/app/components/VisitorCount";
 
 export default function Home() {
   return (
@@ -48,6 +49,9 @@ export default function Home() {
         >
           @burning_bunnies
         </a>
+        <div className="mt-3">
+          <VisitorCount />
+        </div>
       </footer>
     </main>
   );

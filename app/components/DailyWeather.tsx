@@ -147,16 +147,10 @@ export default function DailyWeather({
         </>
       )}
 
-      {/* 감정 날씨 */}
-      <SectionTitle>감정 날씨</SectionTitle>
-      <p className="rounded-lg border border-white/5 bg-[#0c0a26]/30 p-3 text-center text-sm leading-relaxed text-indigo-50/85">
-        {r.emotionalText}
-      </p>
-
-      {/* 시간대별 날씨 (달의 이동 기반) */}
+      {/* 시간대별 흐름 (달의 이동 기반) */}
       {daily.timeWindows.length > 0 && (
         <>
-          <SectionTitle>시간대별 날씨</SectionTitle>
+          <SectionTitle>시간대별 흐름</SectionTitle>
           <div className="flex flex-col gap-2">
             {daily.timeWindows.map((w) => (
               <div
@@ -185,28 +179,11 @@ export default function DailyWeather({
         ))}
       </ul>
 
-      {/* 주의할 자동반응 */}
-      <SectionTitle>주의할 자동반응</SectionTitle>
-      <p className="text-center text-sm leading-relaxed text-indigo-50/85">{r.automaticReaction}</p>
-
       {/* 성찰 질문 */}
-      <SectionTitle>오늘의 성찰 질문</SectionTitle>
+      <SectionTitle>오늘의 질문</SectionTitle>
       <p className="mx-auto max-w-md text-center text-base italic leading-relaxed text-gold/90">
         {r.reflectionQuestion}
       </p>
-
-      {/* 작은 의식 */}
-      <SectionTitle>오늘의 작은 의식</SectionTitle>
-      <p className="text-center text-sm leading-relaxed text-indigo-50/85">{r.smallRitual}</p>
-
-      {/* 장기 배경 */}
-      {r.background && (
-        <>
-          <SectionTitle>장기 배경</SectionTitle>
-          <p className="text-center text-sm leading-relaxed text-indigo-50/75">{r.background.text}</p>
-          <p className="font-serif mt-1 text-center text-[11px] text-indigo-100/40">{r.background.evidence}</p>
-        </>
-      )}
 
       {/* 면책 */}
       <p className="mx-auto mt-6 max-w-md text-center text-[11px] leading-relaxed text-indigo-100/35">
